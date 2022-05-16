@@ -6,7 +6,7 @@
 ## 注意
 - このMODによって生じた**いかなる損害や損失に対して、MOD作成者である私は一切の責任と義務を負っていない**ことにご注意ください
 - チャットを利用した他のMODと干渉する場合があるので、ご注意ください
-- 合成音声の著作権を侵害しないように使用してください
+- 合成音声の著作権等の権利を侵害しないように使用してください
 - このMODはβ版であり、バグが残っている可能性があります。もしバグを発見された場合には、ご一報くださいますとありがたいです
 - このMODを使用したTRPGプレイ動画等を投稿される場合は、このMODとFoundryVTTの紹介をしていただけますと、大変うれしく思います（ご協力お願いいたします）
 - FireFoxブラウザは(CORS関係の設定が他ブラウザと違うらしく)棒読みちゃんとリンクできないので、非対応です
@@ -39,7 +39,7 @@
 ![棒読みちゃんDL元](https://user-images.githubusercontent.com/52102146/168620234-ed5df4f7-552e-4dd3-9204-664fac39a983.png)
 　<br>
 　<br>
-5. 棒読みちゃんWebSocketプラグインをインストール・棒読みちゃんで有効化する
+5. 棒読みちゃんWebSocketプラグインを[ダウンロード](https://github.com/ryujimiya/Plugin_BymChnWebSocket)・棒読みちゃんで有効化する
 ![棒読みちゃんWebSocketプラグインDL元](https://user-images.githubusercontent.com/52102146/168620364-63bd4f0c-7b7f-4f98-afb2-0790b376f3b1.png)
 ![棒読みちゃんWebSocketプラグイン有効化](https://user-images.githubusercontent.com/52102146/168620414-8d2a5ced-9e53-49a2-b04d-2cb9c52c13ce.png)
 　<br>
