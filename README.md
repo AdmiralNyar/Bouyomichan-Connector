@@ -192,7 +192,7 @@ RESPONSE
 　<br>
 　<br>
 ## 権利表記と謝辞
-- このMODに含まれているbouyomichan_client.jsは、[@ryujimiya2361](https://twitter.com/ryujimiya2361)氏が作成した「棒読みちゃんWebSocketプラグイン」の使用例をほんの少しだけ改造したものが組み込まれています。このMODはWebSocketで棒読みちゃんにテキストデータ等を送ることができなければ成り立たちません。素晴らしいプラグインを作成された氏にこの場をお借りして感謝の意を申し上げます。
+- このMODに含まれているbouyomichan_client.jsは、[@ryujimiya2361](https://twitter.com/ryujimiya2361)氏が作成した「[棒読みちゃんWebSocketプラグイン](https://qiita.com/ryujimiya2361/items/2bf46596b45583f370a6)」の使用例をほんの少しだけ改造したものが組み込まれています。このMODはWebSocketで棒読みちゃんにテキストデータ等を送ることができなければ成り立たちません。素晴らしいプラグインを作成された氏にこの場をお借りして感謝の意を申し上げます。
 　<br>
 　<br>
 　<br>
