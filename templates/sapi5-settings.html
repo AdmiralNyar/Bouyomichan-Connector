@@ -1,0 +1,18 @@
+<form class="flexcol" autocomplete="off">
+    <h2 style="justify-content: space-between; display: flex;"><span>{{localize 'TTSC.SAPI5Settingslabel'}}</span><a style="margin-right: 5px;" class="add-voice" title="{{localize 'TTSC.WindowVoiceAdd'}}"><i class="fas fa-plus"></i></a></h2>
+    {{#each sapi5List as |list|}}
+        <div class="form-group">
+            <div style="flex-basis: 100%; display: flex; justify-content: space-between;" data-id="{{@index}}" data-name="{{list.name}}" data-num="{{list.num}}"><input style="width:44%" type="text" id="" placeholder="{{localize 'TTSC.WindowVoiceSource'}}" name="{{@index}}{{list.name}}" pattern="[^/#&?%.\-+_=@／＃＆？％．￥－＋＿＝＠]+" title="{{localize 'TTSC.WindowVoiceSourceTitle'}}" value="{{list.name}}"><input style="width:44%" type="number" id="" placeholder="{{localize 'TTSC.WindowID'}}" name="{{@index}}{{list.name}}num" pattern="[1-9][0-9]{4,}" title="{{localize 'TTSC.WindowIDTitle'}}" value="{{list.num}}"><div style="display:flex;justify-content: space-evenly;width:8%"><a class="voice-delete" title="{{localize 'TTSC.WindowDelete'}}"><i class="fas fa-trash"></i></a></div></div>
+        </div>
+    {{/each}}
+
+    <!-- Settings Footer -->
+    <footer class="sheet-footer flexrow">
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i> {{localize 'SETTINGS.Save'}}
+        </button>
+        <button type="button" name="reset">
+            <i class="fas fa-undo"></i> {{localize 'SETTINGS.Reset'}}
+        </button>
+    </footer>
+</form>

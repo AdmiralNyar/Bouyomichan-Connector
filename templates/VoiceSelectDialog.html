@@ -1,0 +1,22 @@
+<form id="select-voice">
+    <div>
+        <label>{{localize 'TTSC.WindowSelectSpeakerVoicetitle'}}</label>
+    </div>
+    <div style="display: flex; margin-bottom: 10px;">
+        <ol id="playersortable">
+            {{#each users as |user|}}
+                <li class="order" id="{{@index}}" data-id="{{@index}}" draggable="false" style="display: flex;height: 30px; margin-top: 5px;" data-playerid="{{user.id}}" data-name="{{user.name}}">
+                    <div style="width:200px;">{{user.name}}</div>
+                    <div style="width:150px">
+                        <select name="{{user.id}}" class="voice-select">
+                            {{#each ../voiceList}}
+                                <option value="{{this.num}}&&{{this.type}}&&{{this.coef}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div style="width:250px; display: flex;"><label style="width:80px">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label><input type="range" id="volume" name="{{user.id}}volume" value="{{user.volume}}" min="0" max="1" step="0.01"></div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+</form>
