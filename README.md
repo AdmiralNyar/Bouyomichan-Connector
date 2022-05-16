@@ -17,8 +17,11 @@
 　<br>
 ### 基本
 1. このMODをインストールする
-     - 下記のリンクをFoundryVTT起動画面の「アドオン・モジュール」⇒「モジュールインストール」⇒「URLを指定：」⇒「インストール」からインストールしてください
-[リンク]()
+     - 下記のリンクをFoundryVTT起動画面の「アドオン・モジュール」⇒「モジュールインストール」⇒「URLを指定：」⇒「インストール」からインストールしてください<br>
+　<br>
+[https://github.com/AdmiralNyar/Bouyomichan-Connector/raw/main/module.json](https://github.com/AdmiralNyar/Bouyomichan-Connector/raw/main/module.json)
+　<br>
+　<br>
 ![インストール画面](https://user-images.githubusercontent.com/52102146/168619751-32db6c64-607d-475b-b99e-dd3742ba6379.png)
 　<br>
 　<br>
@@ -82,7 +85,7 @@
 　<br>
 　<br>
 ### CoeFontのボイスを追加する
-**まず、CoeFontは有料であり、ボイスを使用する度に課金して得たポイントを消費することにご注意ください(CoeFont APIを使用するので、ブラウザ上で基本無料のアリアル・ミリアル・アルベーニも1文字5ポイント消費します！)**
+**まず、CoeFontは有料であり、ボイスを使用する度に課金して得たポイントを消費することにご注意ください(CoeFont APIを使用するので、ブラウザ上で基本無料のアリアル・ミリアル・アルベーニも1文字5ポイント消費します！)**<br>
 **CoeFontにはNGワードがあります。卑猥な用語、放送禁止用語等のNGワードを含む言葉はエラーとなり、出力されませんので注意お願いします（例：ねぇ、壇ノ浦に本当に行ったの？⇒裏日本(NG)、[参考動画](https://www.nicovideo.jp/watch/sm39773414)）**
 1. CoeFontに登録します
 ![CoeFont登録](https://user-images.githubusercontent.com/52102146/168620717-a017d796-f430-4ef2-b647-de3d95e5e48c.png)
