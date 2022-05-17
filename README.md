@@ -1,5 +1,5 @@
-# BymChn Connector(β)
-棒読みちゃんコネクター（BymChn Connector）は、Foundry VTT(ver 9)と棒読みちゃんとCoeFont[^1]を連携させるためのModです。このMod単体では動作せず、下記のツールのインストール（ダウンロード）や登録が必要になりますので、ご注意ください。（自分を含めた）全員のチャットに打ち込んで送信した文章が、自分の棒読みちゃんから（CoeFontの場合はFoundry VTTのページから）音声として出力されます。また、アクターおよびユーザーごとに読み上げさせる声を予め設定しておくこともできます。
+# Bouyomichan Connector(β)
+棒読みちゃんコネクター（Bouyomichan Connector）は、Foundry VTT(ver 9)と棒読みちゃんとCoeFont[^1]を連携させるためのModです。このMod単体では動作せず、下記のツールのインストール（ダウンロード）や登録が必要になりますので、ご注意ください。（自分を含めた）全員のチャットに打ち込んで送信した文章が、自分の棒読みちゃんから（CoeFontの場合はFoundry VTTのページから）音声として出力されます。また、アクターおよびユーザーごとに読み上げさせる声を予め設定しておくこともできます。
 　<br>
 　<br>
 　<br>
@@ -97,6 +97,7 @@
 　<br>
 　<br>
 3. CoeFontとやりとりできるAPIを用意します（下記のリンクからWindows 10[^2]上で実行形式(exeファイル)で起動できるCoeFont API用ローカルサーバーアプリがあるので、問題なければそちらをお使いください）
+     - Windows 10(32bit 64bit)対応アプリ[CoeFont_to_FVTT_LOCAL_API](https://github.com/AdmiralNyar/CoeFont_to_FVTT_LOCAL_API)
      - APIはPOSTで下記のデータをFoundryVTTから送られますので、返却用のjsonデータを返してください
      - API側で、先ほど確認したアクセスキーとクライアントシークレットを使用します（詳しくは、CoeFont APIの仕様のページか、下記のリンク先を参照ください）
 　<br>
