@@ -1,14 +1,15 @@
-# BymChn Connector(β)
-棒読みちゃんコネクター（BymChn Connector）は、Foundry VTT(ver 9)と棒読みちゃんとCoeFont[^1]を連携させるためのModです。このMod単体では動作せず、下記のツールのインストール（ダウンロード）や登録が必要になりますので、ご注意ください。（自分を含めた）全員のチャットに打ち込んで送信した文章が、自分の棒読みちゃんから（CoeFontの場合はFoundry VTTのページから）音声として出力されます。また、アクターおよびユーザーごとに読み上げさせる声を予め設定しておくこともできます。
+# Bouyomichan Connector(β)
+棒読みちゃんコネクター（Bouyomichan Connector）は、Foundry VTT(ver 9)と棒読みちゃんとCoeFont[^1]を連携させるためのModです。このMod単体では動作せず、下記のツールのインストール（ダウンロード）や登録が必要になりますので、ご注意ください。（自分を含めた）全員のチャットに打ち込んで送信した文章が、自分の棒読みちゃんから（CoeFontの場合はFoundry VTTのページから）音声として出力されます。また、アクターおよびユーザーごとに読み上げさせる声を予め設定しておくこともできます。
 　<br>
 　<br>
 　<br>
 ## 注意
 - このMODによって生じた**いかなる損害や損失に対して、MOD作成者である私は一切の責任と義務を負っていない**ことにご注意ください
 - チャットを利用した他のMODと干渉する場合があるので、ご注意ください
-- 合成音声の著作権を侵害しないように使用してください
+- 合成音声の著作権等の権利を侵害しないように使用してください
 - このMODはβ版であり、バグが残っている可能性があります。もしバグを発見された場合には、ご一報くださいますとありがたいです
 - このMODを使用したTRPGプレイ動画等を投稿される場合は、このMODとFoundryVTTの紹介をしていただけますと、大変うれしく思います（ご協力お願いいたします）
+- FireFoxブラウザは(CORS関係の設定が他ブラウザと違うらしく)棒読みちゃんとリンクできないので、非対応です
 　<br>
 　<br>
 　<br>
@@ -17,8 +18,11 @@
 　<br>
 ### 基本
 1. このMODをインストールする
-     - 下記のリンクをFoundryVTT起動画面の「アドオン・モジュール」⇒「モジュールインストール」⇒「URLを指定：」⇒「インストール」からインストールしてください
-[リンク]()
+     - 下記のリンクをFoundryVTT起動画面の「アドオン・モジュール」⇒「モジュールインストール」⇒「URLを指定：」⇒「インストール」からインストールしてください<br>
+　<br>
+[https://github.com/AdmiralNyar/Bouyomichan-Connector/raw/main/module.json](https://github.com/AdmiralNyar/Bouyomichan-Connector/raw/main/module.json)
+　<br>
+　<br>
 ![インストール画面](https://user-images.githubusercontent.com/52102146/168619751-32db6c64-607d-475b-b99e-dd3742ba6379.png)
 　<br>
 　<br>
@@ -31,11 +35,11 @@
 ![読み上げ切り替えスイッチオン](https://user-images.githubusercontent.com/52102146/168620153-2571deef-54fb-436c-9a2d-0f750fe44b51.png)
 　<br>
 　<br>
-4. 棒読みちゃんをインストールします
+4. 棒読みちゃんを[ダウンロード](https://chi.usamimi.info/Program/Application/BouyomiChan/)します
 ![棒読みちゃんDL元](https://user-images.githubusercontent.com/52102146/168620234-ed5df4f7-552e-4dd3-9204-664fac39a983.png)
 　<br>
 　<br>
-5. 棒読みちゃんWebSocketプラグインをインストール・棒読みちゃんで有効化する
+5. 棒読みちゃんWebSocketプラグインを[ダウンロード](https://github.com/ryujimiya/Plugin_BymChnWebSocket)・棒読みちゃんで有効化する
 ![棒読みちゃんWebSocketプラグインDL元](https://user-images.githubusercontent.com/52102146/168620364-63bd4f0c-7b7f-4f98-afb2-0790b376f3b1.png)
 ![棒読みちゃんWebSocketプラグイン有効化](https://user-images.githubusercontent.com/52102146/168620414-8d2a5ced-9e53-49a2-b04d-2cb9c52c13ce.png)
 　<br>
@@ -82,8 +86,8 @@
 　<br>
 　<br>
 ### CoeFontのボイスを追加する
-**まず、CoeFontは有料であり、ボイスを使用する度に課金して得たポイントを消費することにご注意ください(CoeFont APIを使用するので、ブラウザ上で基本無料のアリアル・ミリアル・アルベーニも1文字5ポイント消費します！)**
-**CoeFontにはNGワードがあります。卑猥な用語、放送禁止用語等のNGワードを含む言葉はエラーとなり、出力されませんので注意お願いします（例：壇ノ浦に本当に行ったの？⇒裏日本、参考動画）**
+**まず、CoeFontは有料であり、ボイスを使用する度に課金して得たポイントを消費することにご注意ください(CoeFont APIを使用するので、ブラウザ上で基本無料のアリアル・ミリアル・アルベーニも1文字5ポイント消費します！)**<br>
+**CoeFontにはNGワードがあります。卑猥な用語、放送禁止用語等のNGワードを含む言葉はエラーとなり、出力されませんので注意お願いします（例：ねぇ、壇ノ浦に本当に行ったの？⇒裏日本(NG)、[参考動画](https://www.nicovideo.jp/watch/sm39773414)）**
 1. CoeFontに登録します
 ![CoeFont登録](https://user-images.githubusercontent.com/52102146/168620717-a017d796-f430-4ef2-b647-de3d95e5e48c.png)
 　<br>
@@ -92,7 +96,8 @@
 ![CoeFontAPI情報](https://user-images.githubusercontent.com/52102146/168620777-7193f636-7d75-4d59-992a-b5c3e72c05da.png)
 　<br>
 　<br>
-3. CoeFontとやりとりできるAPIを用意します（下記のリンクからWindows 10上で実行形式(exeファイル)で起動できるCoeFont API用ローカルサーバーアプリがあるので、問題なければそちらをお使いください）
+3. CoeFontとやりとりできるAPIを用意します（下記のリンクからWindows 10[^2]上で実行形式(exeファイル)で起動できるCoeFont API用ローカルサーバーアプリがあるので、問題なければそちらをお使いください）
+     - Windows 10(32bit 64bit)対応アプリ[CoeFont_to_FVTT_LOCAL_API](https://github.com/AdmiralNyar/CoeFont_to_FVTT_LOCAL_API)
      - APIはPOSTで下記のデータをFoundryVTTから送られますので、返却用のjsonデータを返してください
      - API側で、先ほど確認したアクセスキーとクライアントシークレットを使用します（詳しくは、CoeFont APIの仕様のページか、下記のリンク先を参照ください）
 　<br>
@@ -165,7 +170,7 @@ RESPONSE
 　<br>
 　<br>
 ### VOICEROIDやAI.VOICEなど各合成音声を棒読みちゃんに追加する
-1. VOICEROID2、VOICEROID+ EX版、VOICEROID+（東北ずん子、結月ゆかり、民安ともえ、鷹の爪 吉田くん）、VOICEROID（月読アイ、月読ショウタ）、ガイノイドTalk、音街ウナTalk Ex、ギャラ子Talk、かんたん! AITalk 3、かんたん! AITalk 3 関西風の場合
+1. VOICEROID2[^3]、VOICEROID+ EX版、VOICEROID+（東北ずん子、結月ゆかり[^4]、民安ともえ、鷹の爪 吉田くん）、VOICEROID（月読アイ、月読ショウタ[^5]）、ガイノイドTalk、音街ウナ[^6]Talk Ex、ギャラ子[^7]Talk、かんたん! AITalk[^8] 3、かんたん! AITalk 3 関西風の場合
      - [ここ](https://wangdora.rdy.jp/?plugin/VTP) からVoiceroid Talk Plusのプラグインをインストールして棒読みちゃんで有効にしてください
      - この場合の声質は、チャットの話者の声質がCoeFontの声質以外の場合に上書き実行して使います（例えば、Player1が女性1（棒読みちゃん）設定時に、Voiceroid Talk Plusの設定内のコマンド一覧にある鷹の爪 吉田くんボイス（コマンド 「v)」）を話したい場合は、「v) "読み上げたい文章"」をチャットに入力してください）
 　<br>
@@ -174,22 +179,32 @@ RESPONSE
      - [ここページ](https://github.com/shigobu/SAPIForVOICEVOX) から「SAPI For VOICEVOX」をダウンロードして棒読みちゃんとVOICEVOXと併用してください（SAPI5として追加されます）
 　<br>
 　<br>
-3. A.I.Voiceの場合
+3. A.I.Voice[^9]の場合
      - [ここのページ](https://github.com/gizagizamax/PotatoVoiceHub) から「PotatoVoiceHub」をダウンロードして棒読みちゃんとVoiceroid Talk Plusと連携してください
 　<br>
 　<br>
-4. VOICEPEAKの場合（連携できません。棒読みちゃんと連携する方法をご存じの方がいましたら情報提供ください）
+4. VOICEPEAK[^10]の場合（連携できません。棒読みちゃんと連携する方法をご存じの方がいましたら情報提供ください）
 　<br>
 　<br>
-5. CeVIO(CS6のみ)
+5. CeVIO[^11]\(CS6のみ)
      - CeVIO CS7とAIは64bitアプリケーションなので、32bitアプリケーションの棒読みちゃんと連携できません
      - CS6の場合、SAPI5音源として（単独で？）連携できるようです
 　<br>
 　<br>
 　<br>
 ## 権利表記と謝辞
-- このMODに含まれているbouyomichan_client.jsは、[@ryujimiya2361](https://twitter.com/ryujimiya2361)氏が作成した「棒読みちゃんWebSocketプラグイン」の使用例をほんの少しだけ改造したものが組み込まれています。このMODはWebSocketで棒読みちゃんにテキストデータ等を送ることができなければ成り立たちません。素晴らしいプラグインを作成された氏にこの場をお借りして感謝の意を申し上げます。
+- このMODに含まれているbouyomichan_client.jsは、[@ryujimiya2361](https://twitter.com/ryujimiya2361)氏が作成した「[棒読みちゃんWebSocketプラグイン](https://qiita.com/ryujimiya2361/items/2bf46596b45583f370a6)」の使用例をほんの少しだけ改造したものが組み込まれています。このMODはWebSocketで棒読みちゃんにテキストデータ等を送ることができなければ成り立たちません。素晴らしいプラグインを作成された氏にこの場をお借りして感謝の意を申し上げます。
 　<br>
 　<br>
 　<br>
-[^1]:AI音声プラットフォーム「CoeFont」とは。「CoeFont」( https://coefont.cloud )はAI音声プラットフォームです。最新のAI音声合成技術を活かし、「声」を手軽かつ表現力豊かな「フォント」のようにすることをコンセプトにしたAI音声技術です。従来では、50万円・10時間以上の収録を必要としていた音声合成を、このサービスでは500円・15分の収録で、自然な発声のできる「CoeFont(AI音声)」を作成できます。作成したCoeFontは、クラウド上で公開することができます。他のユーザーのCoeFontを利用したAI音声の作成も可能です。作成したCoeFontが利用されるたびに、CoeFontの作成者に収益として還元されます。またAPIを利用して、アプリやウェブサイトに組み込むこともできます。（株式会社CoeFontより）
+[^1]:AI音声プラットフォーム「CoeFont」とは。[CoeFont](https://coefont.cloud)はAI音声プラットフォームです。最新のAI音声合成技術を活かし、「声」を手軽かつ表現力豊かな「フォント」のようにすることをコンセプトにしたAI音声技術です。従来では、50万円・10時間以上の収録を必要としていた音声合成を、このサービスでは500円・15分の収録で、自然な発声のできる「CoeFont(AI音声)」を作成できます。作成したCoeFontは、クラウド上で公開することができます。他のユーザーのCoeFontを利用したAI音声の作成も可能です。作成したCoeFontが利用されるたびに、CoeFontの作成者に収益として還元されます。またAPIを利用して、アプリやウェブサイトに組み込むこともできます。（株式会社CoeFontより）CoeFontは株式会社CoeFontの登録商標です。
+[^2]:Windows10は、MicrosoftCorporationの米国及びその他の国における商標または登録商標です。
+[^3]:VOICEROIDは株式会社AHSおよび株式会社エーアイの登録商標です。
+[^4]:結月ゆかりは株式会社バンピーファクトリーの登録商標です。
+[^5]:月読ショウタ、月読アイは株式会社AHSの登録商標です。
+[^6]:音街ウナは株式会社エム・ティー・ケーの登録商標です。
+[^7]:ギャラ子はヤマハ株式会社および株式会社スターダスト音楽出版の登録商標です。
+[^8]:AITalkは株式会社エーアイの登録商標です。
+[^9]:AIVoiceは株式会社エーアイの登録商標です。
+[^10]:VOICEPEAKはDreamTonics株式会社の登録商標です。
+[^11]:CeVIOは株式会社フロンティアワークスの登録商標です。

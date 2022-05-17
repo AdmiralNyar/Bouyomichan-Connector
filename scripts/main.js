@@ -308,7 +308,7 @@ Hooks.once("ready", async function(){
                             let masterVolume = await game.settings.get("BymChnConnector", "coefontmastervolume")
                             if(masterVolume > 2) masterVolume = 2
                             if(masterVolume < 0.2) masterVolume = 0.2
-                            let url = await coeFont(text = data.message, coef = coef[emotion]);
+                            let url = await coeFont(text = data.message, coef = coef[emotion], masterVolume);
 
                             audioElement = new Audio();
                             audioElement.src = url;
@@ -890,7 +890,7 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
                             if(masterVolume > 2) masterVolume = 2
                             if(masterVolume < 0.2) masterVolume = 0.2
 
-                            let url = await coeFont(text = text, coef = coef[emotion], volume = masterVolume);
+                            let url = await coeFont(text = text, coef = coef[emotion], masterVolume);
 
                             audioElement = new Audio();
                             audioElement.src = url;
