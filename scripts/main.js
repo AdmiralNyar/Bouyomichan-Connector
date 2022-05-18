@@ -802,7 +802,26 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
             if( game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
-            if(theatre){
+	    if(game.modules.get('theatre')?.active){
+                let actorId = (Theatre.instance.usersTyping[document.data.user].theatreId)?.replace("theatre-", "")
+                if(actorId){
+                    let index = list.findIndex(i => i.type == 1 && i.id == actorId);
+                    if(index >= 0){
+                        voice = list[index].voice;
+                        volume = list[index].volume;
+                        vtype = list[index].vtype;
+                        coef = list[index].coef;
+                    }else{
+                        let bymchndefVolume = await game.settings.get("BymChnConnector", "BymChnDefVolume");
+                        bymchndefVolume = Math.round((bymchndefVolume * 1000) / 300) / 1000;
+                        if(bymchndefVolume != 0 && !bymchndefVolume) bymchndefVolume = -1;
+                        voice = 0;
+                        volume = bymchndefVolume
+                        vtype = 0;
+                        coef = "eroor";
+                    }
+                }
+            }else if(theatre){
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
                 if(index >= 0){
                     voice = list[index].voice;
