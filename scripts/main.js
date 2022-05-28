@@ -804,7 +804,7 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
             let theatre = false;
             if( game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
             let actorId = null;
-	        if(game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[document.data.user].theatreId)?.replace("theatre-", "")
+	          if(game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[document.data.user].theatreId)?.replace("theatre-", "")
             if(game.modules.get('speak-as')?.active) {
                 let namelist = doc.getElementById('namelist');
                 let checked = doc.getElementById("speakerSwitch").checked;
