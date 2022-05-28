@@ -197,6 +197,22 @@ RESPONSE
 　<br>
 　<br>
 　<br>
+
+## 主な更新内容
+### v0.1.3
+- 声なしの設定ができるようになりました
+- [Speak As……](https://github.com/hktrpg/foundryVTT-speak-as) との連携をしました
+  <br>
+### v0.1.2
+- [Theatre Inserts](https://github.com/League-of-Foundry-Developers/fvtt-module-theatre) にて控え室からアクターを指定して話した場合でも、指定した声質となるように連携を強化しました
+  <br>
+### v0.1.1
+- README.mdに詳細な使い方を追記しました
+  <br>
+### v0.1.0
+- 初回リリース（β版）
+  <br>
+  <br>
 [^1]:AI音声プラットフォーム「CoeFont」とは。[CoeFont](https://coefont.cloud)はAI音声プラットフォームです。最新のAI音声合成技術を活かし、「声」を手軽かつ表現力豊かな「フォント」のようにすることをコンセプトにしたAI音声技術です。従来では、50万円・10時間以上の収録を必要としていた音声合成を、このサービスでは500円・15分の収録で、自然な発声のできる「CoeFont(AI音声)」を作成できます。作成したCoeFontは、クラウド上で公開することができます。他のユーザーのCoeFontを利用したAI音声の作成も可能です。作成したCoeFontが利用されるたびに、CoeFontの作成者に収益として還元されます。またAPIを利用して、アプリやウェブサイトに組み込むこともできます。（株式会社CoeFontより）CoeFontは株式会社CoeFontの登録商標です。
 [^2]:Windows10は、MicrosoftCorporationの米国及びその他の国における商標または登録商標です。
 [^3]:VOICEROIDは株式会社AHSおよび株式会社エーアイの登録商標です。
