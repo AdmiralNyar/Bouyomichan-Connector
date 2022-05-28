@@ -15,6 +15,7 @@
   "TTSC.CoeFontAPIConnectorURLhint" : "Note: Not the URL of CoeFont API",
 
   "TTSC.VoiceNarrator" : "Narrator",
+  "TTSC.VoiceNone" : "Voiceless",
   "TTSC.VoiceDefault" : "Default",
   "TTSC.VoiceWoman1" : "Woman1",
   "TTSC.VoiceWoman2" : "Woman2",

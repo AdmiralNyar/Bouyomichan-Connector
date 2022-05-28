@@ -15,6 +15,7 @@
     "TTSC.CoeFontAPIConnectorURLhint" : "※CoeFont APIのURLではない",
 
     "TTSC.VoiceNarrator" : "ナレーター",
+    "TTSC.VoiceNone" : "声なし",
     "TTSC.VoiceDefault" : "デフォルト",
     "TTSC.VoiceWoman1" : "女性1",
     "TTSC.VoiceWoman2" : "女性2",
