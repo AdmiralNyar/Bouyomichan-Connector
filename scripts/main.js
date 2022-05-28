@@ -149,6 +149,7 @@ Hooks.once("ready", async function(){
         config: false,
         type:Object,
         default:[
+            {name:game.i18n.localize("TTSC.VoiceNone"), type: -1, num:"Voiceless", coef:"error"},
             {name:game.i18n.localize("TTSC.VoiceDefault"), type:0, num:0, coef:"error"},
             {name:game.i18n.localize("TTSC.VoiceWoman1"), type:0, num:1, coef:"error"},
             {name:game.i18n.localize("TTSC.VoiceWoman2"), type:0, num:2, coef:"error"},
@@ -238,7 +239,6 @@ Hooks.once("ready", async function(){
         const type = packet.type;
         const receiveUserId = packet.receiveUserId;
         const sendUserId = packet.sendUserId;
-
         if(type == "request"){
             let voice = 0;
             let active = await game.settings.get("BymChnConnector", "active");
@@ -247,7 +247,7 @@ Hooks.once("ready", async function(){
             let coef = "error";
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
-            if( game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
+            if( game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true;
             if(theatre){
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
                 if(index >= 0){
@@ -290,10 +290,10 @@ Hooks.once("ready", async function(){
                 }
             }
             if(active){
-                let bouyomiChanClient = new BouyomiChanClient();
                 if(( volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
                 if(vtype == 2 && ( volume > 1 || volume < 0)) volume = 0.5;
                 if(vtype == 0 || vtype == 1) {
+                    let bouyomiChanClient = new BouyomiChanClient();
                     volume = volume * 300;
                     volume = Math.round(volume)
                     await bouyomiChanClient.talk(data.message, voice, volume);
@@ -779,6 +779,7 @@ async function voiceSelector(){
 }
 
 Hooks.on("chatMessage", (chatLog, message, chatData) =>{
+    const doc = document;
     let parse = ChatLog.parse(message);
     let notskip = false
     switch (parse[0]) {
@@ -802,9 +803,19 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
             if( game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
-	    if(game.modules.get('theatre')?.active){
-                let actorId = (Theatre.instance.usersTyping[document.data.user].theatreId)?.replace("theatre-", "")
-                if(actorId){
+            let actorId = null;
+	          if(game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[document.data.user].theatreId)?.replace("theatre-", "")
+            if(game.modules.get('speak-as')?.active) {
+                let namelist = doc.getElementById('namelist');
+                let checked = doc.getElementById("speakerSwitch").checked;
+                if(!!namelist && !!checked){
+                    if(namelist.value != "userName") {
+                        data.speaker.actor = namelist.value;
+                        if(!actorId) actorId = namelist.value;
+                    }
+                }
+            }
+            if(actorId != "Narrator" && !!actorId){
                     let index = list.findIndex(i => i.type == 1 && i.id == actorId);
                     if(index >= 0){
                         voice = list[index].voice;
@@ -820,7 +831,6 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
                         vtype = 0;
                         coef = "eroor";
                     }
-                }
             }else if(theatre){
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
                 if(index >= 0){
@@ -884,14 +894,16 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
                 if(emotion == "do") emotion = "dio";
                 if(!emotion) emotion = "df";
             }
-            let packet = {data:{message:text, speaker:document.data.speaker, emotion: emotion},type:"request", sendUserId: game.user.id}
+            let speaker = {...document.data.speaker}
+            if(actorId != "Narrator" && !!actorId) speaker.actor = actorId
+            let packet = {data:{message:text, speaker:speaker, emotion: emotion},type:"request", sendUserId: game.user.id}
             if(text != "") game.socket.emit('module.BymChnConnector', packet);
 
             if(active){
                 if(( volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
                 if(vtype == 2 && ( volume > 1 || volume < 0)) volume = 0.5;
-                let bouyomiChanClient = new BouyomiChanClient();
                 if(vtype == 0 || vtype == 1) {
+                    let bouyomiChanClient = new BouyomiChanClient();
                     volume = volume * 300;
                     volume = Math.round(volume)
                     await bouyomiChanClient.talk(text, voice, volume);
