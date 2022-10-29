@@ -3,9 +3,9 @@
     "title": "Bouyomichan Connector",
     "description": "Bouyomichan Connector",
     "author": "Admiral Nyar",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "9",
+    "compatibleCoreVersion": "10",
     "scripts": [
         "scripts/main.js",
         "scripts/bouyomichan_client.js"
@@ -25,6 +25,6 @@
     "socket": true,
     "url" : "https://github.com/AdmiralNyar/Bouyomichan-Connector",
     "manifest" : "https://github.com/AdmiralNyar/Bouyomichan-Connector/raw/main/module.json",
-    "download" : "https://github.com/AdmiralNyar/Bouyomichan-Connector/archive/v0.1.3.zip",
+    "download" : "https://github.com/AdmiralNyar/Bouyomichan-Connector/archive/v0.2.0.zip",
     "license" : "LICENSE"
 }
