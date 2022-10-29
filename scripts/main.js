@@ -1,3 +1,6 @@
+
+let isNewVersion = isNewerVersion(game.version, "10");
+
 Hooks.once("init", async function(){
     game.settings.registerMenu("BymChnConnector", "sapi5Table", {
         name: "TTSC.SAPI5Settings",
@@ -108,6 +111,8 @@ Hooks.once("init", async function(){
                 return options.inverse(this);
         }
     });
+
+    isNewVersion = isNewerVersion(game.version, "10");
 });
 
 Hooks.on('getSceneControlButtons', (buttons) => {
@@ -366,6 +371,7 @@ class Sapi5ListSettings extends FormApplication {
     async getData() {
 		let data = super.getData();
 		data.sapi5List = Sapi5ListData.sapi5List();
+        data.userid = game.user.id;
         return data
     }
 
@@ -418,8 +424,8 @@ class Sapi5ListSettings extends FormApplication {
         let nameNone = false
         let numNone = false
         for(let i = 0 ; i < sapi5List.length; i++){
-            let name = data[`${i}${sapi5List[i].name}`];
-            let num = data[`${i}${sapi5List[i].name}num`];
+            let name = data[`${i}${game.user.id}`];
+            let num = data[`${i}${game.user.id}num`];
             if(!!name){
                 sapi5List[i].name = name;
             }else{
@@ -517,6 +523,7 @@ class CoeFontSettings extends FormApplication {
 	async getData() {
 		let data = super.getData();
 		data.coeList = CoeListData.coeList();
+        data.userid = game.user.id;
         return data
     }
 
@@ -587,26 +594,26 @@ class CoeFontSettings extends FormApplication {
 
         for(let i = 0 ; i < coeList.length; i++){
             df = ki = dio = ai = rk = "";
-            if(data[`${i}${coeList[i].name}`]){
-                coeList[i].name = data[`${i}${coeList[i].name}`]
-                coeList[i].num = data[`${i}${coeList[i].name}`]
+            if(data[`${i}${game.user.id}`]){
+                coeList[i].name = data[`${i}${game.user.id}`]
+                coeList[i].num = data[`${i}${game.user.id}`]
             }else{
                 nameNone = true;
             }
-            if(data[`${i}${coeList[i].name}df`]){
-                df = data[`${i}${coeList[i].name}df`]
+            if(data[`${i}${game.user.id}df`]){
+                df = data[`${i}${game.user.id}df`]
             }
-            if(data[`${i}${coeList[i].name}ki`]){
-                ki = data[`${i}${coeList[i].name}ki`]
+            if(data[`${i}${game.user.id}ki`]){
+                ki = data[`${i}${game.user.id}ki`]
             }
-            if(data[`${i}${coeList[i].name}dio`]){
-                dio = data[`${i}${coeList[i].name}dio`]
+            if(data[`${i}${game.user.id}dio`]){
+                dio = data[`${i}${game.user.id}dio`]
             }
-            if(data[`${i}${coeList[i].name}ai`]){
-                ai = data[`${i}${coeList[i].name}ai`]
+            if(data[`${i}${game.user.id}ai`]){
+                ai = data[`${i}${game.user.id}ai`]
             }
-            if(data[`${i}${coeList[i].name}rk`]){
-                rk = data[`${i}${coeList[i].name}df`]
+            if(data[`${i}${game.user.id}rk`]){
+                rk = data[`${i}${game.user.id}rk`]
             }
             coeList[i].coef = `{"df":"${df}", "ki":"${ki}", "dio":"${dio}", "ai":"${ai}", "rk":"${rk}"}`
         }
@@ -647,7 +654,6 @@ class CoeFontSettings extends FormApplication {
 
 async function coeFont(text, coef, volume){
     const data = {text:text, coefont: coef, volume};
-
     const param  = {
     method: "POST",
     headers: {
@@ -717,19 +723,24 @@ async function voiceSelector(){
         def.push({type:1, name:actors[j].name, id:actors[j].id, voice:0, volume:bymchndefVolume, vtype: 0, coef: "error"})
     }
     send = [...def];
-    if(!game.user.data.flags["BymChnConnector"]){
+
+    let flags;
+
+    if(isNewVersion) {flags = game.user.flags} else {flags = game.user.data.flags}
+
+    if(!flags["BymChnConnector"]){
         await game.user.setFlag("BymChnConnector", "select-voice", send);
     }else{
-        for(let k = 0; k < game.user.data.flags["BymChnConnector"]["select-voice"].length; k++){
-            let index = send.findIndex(a => (a.id == (game.user.data.flags["BymChnConnector"]["select-voice"][k].id) && (a.name == game.user.data.flags["BymChnConnector"]["select-voice"][k].name)) || (game.user.data.flags["BymChnConnector"]["select-voice"][k].name == "ナレーター"));
+        for(let k = 0; k < flags["BymChnConnector"]["select-voice"].length; k++){
+            let index = send.findIndex(a => (a.id == (flags["BymChnConnector"]["select-voice"][k].id) && (a.name == flags["BymChnConnector"]["select-voice"][k].name)) || (flags["BymChnConnector"]["select-voice"][k].name == "ナレーター"));
             if(index >= 0){
-                send[index] = {...game.user.data.flags["BymChnConnector"]["select-voice"][k]}
+                send[index] = {...flags["BymChnConnector"]["select-voice"][k]}
             }
         }
         await game.user.setFlag("BymChnConnector", "select-voice", send);
     }
 
-    const html = await renderTemplate('modules/BymChnConnector/templates/VoiceSelectDialog.html', {users:game.user.data.flags["BymChnConnector"]["select-voice"],voiceList: sendList});
+    const html = await renderTemplate('modules/BymChnConnector/templates/VoiceSelectDialog.html', {users:flags["BymChnConnector"]["select-voice"],voiceList: sendList});
     const data =  await new Promise(resolve => {
         const dlg = new Dialog({
             title: game.i18n.localize("TTSC.WindowSelectSpeakerVoicetitle"),
@@ -804,7 +815,9 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
             let theatre = false;
             if( game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
             let actorId = null;
-	          if(game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[document.data.user].theatreId)?.replace("theatre-", "")
+            let userid;
+            if(isNewVersion) userid = document.user.id; else userid = document.data.user;
+	        if(game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[userid].theatreId)?.replace("theatre-", "")
             if(game.modules.get('speak-as')?.active) {
                 let namelist = doc.getElementById('namelist');
                 let checked = doc.getElementById("speakerSwitch").checked;
@@ -894,7 +907,8 @@ Hooks.on("chatMessage", (chatLog, message, chatData) =>{
                 if(emotion == "do") emotion = "dio";
                 if(!emotion) emotion = "df";
             }
-            let speaker = {...document.data.speaker}
+            let speaker;
+            if(isNewVersion) speaker = {...document.speaker}; else speaker = {...document.data.speaker}
             if(actorId != "Narrator" && !!actorId) speaker.actor = actorId
             let packet = {data:{message:text, speaker:speaker, emotion: emotion},type:"request", sendUserId: game.user.id}
             if(text != "") game.socket.emit('module.BymChnConnector', packet);
