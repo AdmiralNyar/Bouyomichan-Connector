@@ -1,5 +1,5 @@
 
-let isNewVersion = isNewerVersion(game.version, "10");
+var isNewVersion = isNewerVersion(game.version, "10");
 
 Hooks.once("init", async function(){
     game.settings.registerMenu("BymChnConnector", "sapi5Table", {
