@@ -4,15 +4,6 @@
     "TTSC.SAPI5Settingslabel" : "SAPI5音声ID設定",
     "TTSC.BymChnDefaultVolume" : "棒読みちゃんのデフォルト音量",
     "TTSC.BymChnDefaultVolumehint" : "個別発声者の設定のデフォルト値(最小0、最大300)",
-    "TTSC.CoeFontFunctionActivate" : "CoeFontとの連携機能を使用する",
-    "TTSC.CoeFontFunctionActivatehint" : "変更内容保存後、ここの下に設定が追加される",
-    "TTSC.CoeFontVoiceListSettings" : "使用するCoeFontのボイスを登録する",
-    "TTSC.CoeFontVoiceListSettingshint" : "名前とCoeFontの各音声のuuidを登録する",
-    "TTSC.CoeFontVoiceListSettingslabel" : "CoeFontのボイスを登録",
-    "TTSC.CoeFontMasterVolumeSetting": "CoeFontの音源の音量設定",
-    "TTSC.CoeFontMasterVolumeSettinghint": "CoeFontから渡されるwavファイルの音源の音量設定",
-    "TTSC.CoeFontAPIConnectorURL" : "CoeFont APIと接続する独自APIのURL",
-    "TTSC.CoeFontAPIConnectorURLhint" : "※CoeFont APIのURLではない",
 
     "TTSC.VoiceNarrator" : "ナレーター",
     "TTSC.VoiceNone" : "声なし",
@@ -26,9 +17,6 @@
     "TTSC.VoiceMachine1" : "機械1",
     "TTSC.VoiceMachine2" : "機械2",
     "TTSC.VoiceSAPI5Default" : "SAPI5デフォルト",
-    "TTSC.VoiceArial" : "アリアル",
-    "TTSC.VoiceMirial" : "ミリアル",
-    "TTSC.VoiceAlbani" :"アルベーニ",
 
     "TTSC.ButtonTTSOnOff" : "読み上げ切り替えスイッチ",
     "TTSC.ButtonTTSSpeakerSettings" : "発声者ごとの個別読み上げ設定",
@@ -47,20 +35,7 @@
     "TTSC.WindowNoNameNoIdcontent" : "名前かIDが空欄の項目があります。項目を削除してもよろしいですか？",
     "TTSC.WindowYes" : "はい",
     "TTSC.WindowNo" : "いいえ",
-    "TTSC.WindowCoeFontSettingstitle" : "利用するCoeFontの音源の設定",
-    "TTSC.WindowCoeFontSettingsUuid" : "CoeFont詳細画面のurlに表示される個別のuuid",
-    "TTSC.WindowCoeFontSettingsUuidtitle" : "半角英数字と『._%+-』の記号のみ使用できます。30字以上入力してください。",
-    "TTSC.WindowAccordionSwitch" : "感情の詳細設定",
-    "TTSC.WindowCorFontSettingsDelight" : "喜",
-    "TTSC.WindowCorFontSettingsAnger" : "怒",
-    "TTSC.WindowCorFontSettingsSorrow" : "哀",
-    "TTSC.WindowCorFontSettingsPleasure" : "楽",
-    "TTSC.WindoWNoNametitle" : "名前が空欄です",
-    "TTSC.WindowNoNamecontent" : "名前が空欄の項目があります。項目を削除してもよろしいですか？",
     "TTSC.WindowSelectSpeakerVoicetitle" : "発声者ごとの個別読み上げ設定",
     "TTSC.WindowSelectSpeakerVoiceVolume" : "音量：",
-    "TTSC.WindowSave" : "設定を保存する",
-
-    "TTSC.ErrorCoeFontUuidMiss" : "CoeFontのuuidが空欄です。設定を見直してください。",
-    "TTSC.ErrorEmotionNone" : "CoeFontの感情のuuidが空欄です。デフォルトに再設定します。"
+    "TTSC.WindowSave" : "設定を保存する"
 }

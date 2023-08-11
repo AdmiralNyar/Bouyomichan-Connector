@@ -4,15 +4,6 @@
   "TTSC.SAPI5Settingslabel" : "SAPI5 voice ID setting",
   "TTSC.BymChnDefaultVolume" : "Default volume of the Boyomi-chan",
   "TTSC.BymChnDefaultVolumehint" : "Default value for individual vocalizer setting (min 0, max 300)",
-  "TTSC.CoeFontFunctionActivate" : "Using the CoeFont integration function",
-  "TTSC.CoeFontFunctionActivatehint" : "After saving changes, settings are added under here",
-  "TTSC.CoeFontVoiceListSettings" : "Register the CoeFont voice to be used",
-  "TTSC.CoeFontVoiceListSettingshint" : "Register the name and the uuid of each voice in CoeFont",
-  "TTSC.CoeFontVoiceListSettingslabel" : "Register your CoeFont voice",
-  "TTSC.CoeFontMasterVolumeSetting": "Volume setting for CoeFont sound sources(wav)",
-  "TTSC.CoeFontMasterVolumeSettinghint": "Volume setting for sound source of wav files passed from CoeFont",
-  "TTSC.CoeFontAPIConnectorURL" : "URL of your own API to connect to the CoeFont API",
-  "TTSC.CoeFontAPIConnectorURLhint" : "Note: Not the URL of CoeFont API",
 
   "TTSC.VoiceNarrator" : "Narrator",
   "TTSC.VoiceNone" : "Voiceless",
@@ -26,9 +17,6 @@
   "TTSC.VoiceMachine1" : "Machine1",
   "TTSC.VoiceMachine2" : "Machine2",
   "TTSC.VoiceSAPI5Default" : "SAPI5 Default",
-  "TTSC.VoiceArial" : "Arial",
-  "TTSC.VoiceMirial" : "Mirial",
-  "TTSC.VoiceAlbani" :"Albani",
 
   "TTSC.ButtonTTSOnOff" : "Readout function switch",
   "TTSC.ButtonTTSSpeakerSettings" : "Individual readout settings for each vocalizer",
@@ -47,20 +35,7 @@
   "TTSC.WindowNoNameNoIdcontent" : "There is an item with a blank name or ID. Are you sure you want to delete the item?",
   "TTSC.WindowYes" : "Yes",
   "TTSC.WindowNo" : "No",
-  "TTSC.WindowCoeFontSettingstitle" : "Configuration of CoeFont sound source to be used",
-  "TTSC.WindowCoeFontSettingsUuid" : "Individual uuid displayed in the url on the CoeFont details page",
-  "TTSC.WindowCoeFontSettingsUuidtitle" :"Only single-byte alphanumeric characters and \"._%+-\" synbols. Please enter at least 30 characters",
-  "TTSC.WindowAccordionSwitch" : "Emotion Detail Settings",
-  "TTSC.WindowCorFontSettingsDelight" : "Delight",
-  "TTSC.WindowCorFontSettingsAnger" : "Anger",
-  "TTSC.WindowCorFontSettingsSorrow" : "Sorrow",
-  "TTSC.WindowCorFontSettingsPleasure" : "Pleasure",
-  "TTSC.WindoWNoNametitle" : "Name is blank",
-  "TTSC.WindowNoNamecontent" : "There is an item with a blank name. Are you sure you want to delete the item?",
   "TTSC.WindowSelectSpeakerVoicetitle" : "Individual readout settings for each vocalizer",
   "TTSC.WindowSelectSpeakerVoiceVolume" : "Volume: ",
-  "TTSC.WindowSave" : "Save the settings",
-
-  "TTSC.ErrorCoeFontUuidMiss" : "The CoeFont uuid is blank. Please review the setting",
-  "TTSC.ErrorEmotionNone" : "The CoeFont emotion uuid is blank. Reset to default"
+  "TTSC.WindowSave" : "Save the settings"
 }
