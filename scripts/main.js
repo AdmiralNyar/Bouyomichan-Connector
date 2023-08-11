@@ -71,7 +71,8 @@ Hooks.once("init", async function () {
 Hooks.on('getSceneControlButtons', (buttons) => {
     const isGM = game.user.isGM;
     if (isGM) {
-        let group = buttons.find(b => b.name == 'sounds')
+        let group = buttons.find(b => b.name == 'sounds');
+        const slider = isNewVersion ? "fa-duotone fa-sliders" : "fas fa-sliders-h";
         group.tools.push(
             {
                 toggle: true,
@@ -87,7 +88,7 @@ Hooks.on('getSceneControlButtons', (buttons) => {
         group.tools.push(
             {
                 button: true,
-                icon: "fa-duotone fa-sliders",
+                icon: slider,
                 name: "speakersettings",
                 title: game.i18n.localize("TTSC.ButtonTTSSpeakerSettings"),
                 onClick: async () => {
@@ -103,8 +104,9 @@ Hooks.on('renderSceneControls', (app, html, data) => {
     if (!isGM) {
         const lastMenu = html.find('ol.main-controls').children('*:last');
         const active = game.settings.get("BymChnConnector", "active") ? "active" : "";
+        const slider = isNewVersion ? "fa-duotone fa-sliders" : "fas fa-sliders-h";
         lastMenu.after(
-            `<li class="scene-control plonly speakersettings" title="${game.i18n.localize("TTSC.ButtonTTSSpeakerSettings")}" role="button"><i class="fa-duotone fa-sliders"></i></li>`
+            `<li class="scene-control plonly speakersettings" title="${game.i18n.localize("TTSC.ButtonTTSSpeakerSettings")}" role="button"><i class="${slider}"></i></li>`
         )
 
         lastMenu.after(
