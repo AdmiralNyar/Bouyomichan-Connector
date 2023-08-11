@@ -10,7 +10,7 @@
                     <div style="width:150px">
                         <select name="{{user.id}}" class="voice-select">
                             {{#each ../voiceList}}
-                                <option value="{{this.num}}&&{{this.type}}&&{{this.coef}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
+                                <option value="{{this.num}}&&{{this.type}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
                             {{/each}}
                         </select>
                     </div>
