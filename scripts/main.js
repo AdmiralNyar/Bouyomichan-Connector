@@ -235,6 +235,7 @@ Hooks.once("ready", async function () {
         const data = packet.data;
         const type = packet.type;
         const receiveUserId = packet.receiveUserId;
+        const narT = packet.narratorT;
         const sendUserId = packet.sendUserId;
         if (type == "request") {
             let voice = 0;
@@ -245,9 +246,9 @@ Hooks.once("ready", async function () {
             let theatre = false;
             if (game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true;
             let narrateNT = false;
-            if (game.modules.get('narrator-tools')?.active) if (data.flags["narrator-tools"]?.type == "narration") narrateNT = true;
+            if (game.modules.get('narrator-tools')?.active) if (narT == "narration") narrateNT = true;
             let descNT = false;
-            if (game.modules.get('narrator-tools')?.active) if (data.flags["narrator-tools"]?.type == "description") descNT = true;
+            if (game.modules.get('narrator-tools')?.active) if (narT == "description") descNT = true;
             if (theatre) {
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
                 if (index >= 0) {
@@ -693,8 +694,10 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
 
             let speaker;
             if (isNewVersion) speaker = { ...document.speaker }; else speaker = { ...document.data.speaker }
-            if (actorId != "Narrator" && !!actorId) speaker.actor = actorId
-            let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id }
+            if (actorId != "Narrator" && actorId != "NarrateNT" && actorId != "DescNT" && !!actorId) speaker.actor = actorId
+            let nT = null;
+            if (actorId == "NarrateNT" || actorId == "DescNT") nT = actorId;
+            let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id, narratorT: nT }
             if (text != "") game.socket.emit('module.BymChnConnector', packet);
 
             if (active) {
