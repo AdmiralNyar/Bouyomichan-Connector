@@ -5,7 +5,9 @@
     "TTSC.BymChnDefaultVolume" : "棒読みちゃんのデフォルト音量",
     "TTSC.BymChnDefaultVolumehint" : "個別発声者の設定のデフォルト値(最小0、最大300)",
 
-    "TTSC.VoiceNarrator" : "ナレーター",
+    "TTSC.VoiceNarrator" : "ナレーター (Theatre Inserts)",
+    "TTSC.VoiceNarrateNT" : "Narration (Narrator Tools)",
+    "TTSC.VoiceDescNT" : "Description (Narrator Tools)",
     "TTSC.VoiceNone" : "声なし",
     "TTSC.VoiceDefault" : "デフォルト",
     "TTSC.VoiceWoman1" : "女性1",

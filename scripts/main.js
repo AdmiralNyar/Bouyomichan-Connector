@@ -191,6 +191,45 @@ Hooks.once("ready", async function () {
             await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
         }
     }
+    if (game.modules.get('narrator-tools')?.active) {
+        if (voiceL[0].name != game.i18n.localize("TTSC.VoiceNarrNT") && voiceL[0].type != 2) {
+            voiceL.unshift(
+                { type: 2, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0 },
+                { type: 2, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0 }
+            );
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+        }
+        else if (voiceL[1].name != game.i18n.localize("TTSC.VoiceNarrNT") && voiceL[1].type != 2) {
+            voiceL.splice(1, 0, 
+                { type: 2, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0 },
+                { type: 2, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0 }
+            );
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+        }
+        if (voiceL[0].name == game.i18n.localize("TTSC.VoiceDescNT") && voiceL[1].name == game.i18n.localize("TTSC.VoiceNarrNT")){
+            let tempL = voiceL[0];
+            voiceL[0] = voiceL[1];
+            voiceL[1] = tempL;
+        }
+        if (voiceL[1].name == game.i18n.localize("TTSC.VoiceDescNT") && voiceL[2].name == game.i18n.localize("TTSC.VoiceNarrNT")){
+            let tempL = voiceL[1];
+            voiceL[1] = voiceL[2];
+            voiceL[2] = tempL;
+        }
+    } else {
+        for (let i = 0; i < 3 ; i++){
+            if (voiceL?.[i].name == game.i18n.localize("TTSC.VoiceNarrateNT") && voiceL?.[i].type == 2) {
+                voiceL.splice(i, 1);
+                await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+            }
+        }
+        for (let i = 0; i < 3 ; i++){
+            if (voiceL?.[i].name == game.i18n.localize("TTSC.VoiceDescNT") && voiceL?.[i].type == 2) {
+            voiceL.splice(i, 1);
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+            }
+        }
+    }
 
     game.socket.on('module.BymChnConnector', async (packet) => {
         const data = packet.data;
@@ -205,8 +244,26 @@ Hooks.once("ready", async function () {
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
             if (game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true;
+            let narrateNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (data.flags["narrator-tools"]?.type == "narration") narrateNT = true;
+            let descNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (data.flags["narrator-tools"]?.type == "description") descNT = true;
             if (theatre) {
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (narrateNT) {
+                let index = list.findIndex(k => k.type == 2 && k.id == 'narrate');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (descNT) {
+                let index = list.findIndex(k => k.type == 2 && k.id == 'desc');
                 if (index >= 0) {
                     voice = list[index].voice;
                     volume = list[index].volume;
@@ -407,6 +464,12 @@ async function defvoice() {
     if (game.modules.get('theatre')?.active) {
         def.push({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, volume: bymchndefVolume, vtype: 0 });
     }
+    if (game.modules.get('narrator-tools')?.active) {
+        def.push(
+            { type: 2, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, volume: bymchndefVolume, vtype: 0 },
+            { type: 2, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, volume: bymchndefVolume, vtype: 0 }
+        );
+    }
     for (let i = 0; i < users.length; i++) {
         def.push({ type: 0, name: users[i].name, id: users[i].id, voice: 0, volume: bymchndefVolume, vtype: 0 })
     }
@@ -430,6 +493,12 @@ async function voiceSelector() {
     let sendList = [...voiceList, ...sapi5List];
     if (game.modules.get('theatre')?.active) {
         def.push({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, volume: bymchndefVolume, vtype: 0 });
+    }
+    if (game.modules.get('narrator-tools')?.active) {
+        def.push(
+            { type: 2, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, volume: bymchndefVolume, vtype: 0 },
+            { type: 2, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, volume: bymchndefVolume, vtype: 0 }
+        );
     }
     for (let i = 0; i < users.length; i++) {
         def.push({ type: 0, name: users[i].name, id: users[i].id, voice: 0, volume: bymchndefVolume, vtype: 0 })
@@ -503,7 +572,7 @@ async function voiceSelector() {
 Hooks.on("chatMessage", (chatLog, message, chatData) => {
     const doc = document;
     let parse = ChatLog.parse(message);
-    let skip = false
+    let skip = true;
     switch (parse[0]) {
         case "roll": case "gmroll": case "blindroll": case "selfroll": case "publicroll": case "macro":
             skip = false;
@@ -523,10 +592,16 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
             if (game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
+            let narrateNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (document.flags["narrator-tools"]?.type == "narration") narrateNT = true;
+            let descNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (document.flags["narrator-tools"]?.type == "description") descNT = true;
             let actorId = null;
             let userid;
             if (isNewVersion) userid = document.user.id; else userid = document.data.user;
             if (game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[userid].theatreId)?.replace("theatre-", "")
+            if (game.modules.get('narrator-tools')?.active) if (document.flags["narrator-tools"]?.type == "narration") actorId = "NarrateNT";
+            if (game.modules.get('narrator-tools')?.active) if (document.flags["narrator-tools"]?.type == "description") actorId = "DescNT";
             if (game.modules.get('speak-as')?.active) {
                 let namelist = doc.getElementById('namelist');
                 let checked = doc.getElementById("speakerSwitch").checked;
@@ -537,7 +612,7 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
                     }
                 }
             }
-            if (actorId != "Narrator" && !!actorId) {
+            if (actorId != "Narrator" && actorId != "NarrateNT" && actorId != "DescNT" && !!actorId) {
                 let index = list.findIndex(i => i.type == 1 && i.id == actorId);
                 if (index >= 0) {
                     voice = list[index].voice;
@@ -553,6 +628,20 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
                 }
             } else if (theatre) {
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (narrateNT) {
+                let index = list.findIndex(k => k.type == 2 && k.id == 'narrate');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (descNT) {
+                let index = list.findIndex(k => k.type == 2 && k.id == 'desc');
                 if (index >= 0) {
                     voice = list[index].voice;
                     volume = list[index].volume;
