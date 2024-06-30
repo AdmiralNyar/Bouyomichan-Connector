@@ -5,7 +5,9 @@
   "TTSC.BymChnDefaultVolume" : "Default volume of the Boyomi-chan",
   "TTSC.BymChnDefaultVolumehint" : "Default value for individual vocalizer setting (min 0, max 300)",
 
-  "TTSC.VoiceNarrator" : "Narrator",
+  "TTSC.VoiceNarrator" : "Narrator (Theatre Inserts)",
+  "TTSC.VoiceNarrateNT" : "Narration (Narrator Tools)",
+  "TTSC.VoiceDescNT" : "Description (Narrator Tools)",
   "TTSC.VoiceNone" : "Voiceless",
   "TTSC.VoiceDefault" : "Default",
   "TTSC.VoiceWoman1" : "Woman1",
