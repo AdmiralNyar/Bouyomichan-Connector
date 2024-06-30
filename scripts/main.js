@@ -1,6 +1,37 @@
 
 var isNewVersion = isNewerVersion(game.version, "10");
 
+//Version Comparison
+const compare = (a, b) => {
+    if (a == b) {
+        return 0;
+    }
+
+    var a_components = a.split(".");
+    var b_components = b.split(".");
+    var len = Math.min(a_components.length, b_components.length);
+
+    for (var i = 0; i < len; i++) {
+        if (parseInt(a_components[i]) > parseInt(b_components[i])) {
+            return 1;
+        }
+
+        if (parseInt(a_components[i]) < parseInt(b_components[i])) {
+            return -1;
+        }
+    }
+
+    if (a_components.length > b_components.length) {
+        return 1;
+    }
+
+    if (a_components.length < b_components.length) {
+        return -1;
+    }
+
+    return 0;
+}
+
 Hooks.once("init", async function () {
     game.settings.registerMenu("BymChnConnector", "sapi5Table", {
         name: "TTSC.SAPI5Settings",
@@ -134,6 +165,20 @@ Hooks.once("ready", async function () {
         await defvoice()
     }
 
+    //Version control at startup
+    const b = game.user.getFlag("BymChnConnector", "announcements");
+    if (!!b) {
+        let lastversion = duplicate(b.version);
+        const nowversion = (await game.modules.get("BymChnConnector")).version;
+        if (compare(nowversion, lastversion) == 1) {
+            // Automatic display of update announcements to be implemented (TBD)
+            b.version = nowversion;
+            game.user.setFlag("BymChnConnector", "announcements", b);
+        }
+    } else {
+        game.user.setFlag("BymChnConnector", "announcements", { version: (await game.modules.get("BymChnConnector")).version });
+    }
+
     game.settings.register("BymChnConnector", "voice-list", {
         name: "BymChn voice-list",
         scope: "client",
@@ -180,22 +225,56 @@ Hooks.once("ready", async function () {
     });
 
     let voiceL = await game.user.getFlag("BymChnConnector", "select-voice");
+
+    //Update process of existing data due to renaming of translation files
+    let announcements = await game.user.getFlag("BymChnConnector", "announcements");
+    if (!announcements.nT) {
+        announcements.nT = true;
+        let num = voiceL.findIndex(i => i.type == 2);
+        voiceL[num].name = game.i18n.localize("TTSC.VoiceNarrator");
+        await game.user.setFlag("BymChnConnector", "announcements", announcements);
+    }
+
+    let theatre_set = voiceL.flatMap((i, j) => (i.name == game.i18n.localize("TTSC.VoiceNarrator") && i.type == 2) ? j : []);
     if (game.modules.get('theatre')?.active) {
-        if (voiceL[0].name != game.i18n.localize("TTSC.VoiceNarrator") && voiceL[0].type != 2) {
-            voiceL.unshift({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0 });
+        if (theatre_set.length == 0) {
+            voiceL.unshift({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, vtype: 0 });
             await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
         }
     } else {
-        if (voiceL?.[0].name == game.i18n.localize("TTSC.VoiceNarrator") && voiceL?.[0].type == 2) {
-            voiceL.shift();
+        if (theatre_set.length > 0) {
+            theatre_set = theatre_set.reverse();
+            for (let k = 0; k < theatre_set.length; k++) {
+                voiceL.splice(theatre_set[k], 1);
+            }
             await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
         }
+    }
+
+    let narrator_set = voiceL.flatMap((i, j) => ([game.i18n.localize("TTSC.VoiceNarrateNT"), game.i18n.localize("TTSC.VoiceDescNT")].includes(i.name) && i.type == 4) ? j : []);
+    if (game.modules.get('narrator-tools')?.active) {
+        if (narrator_set.length == 0) {
+            voiceL.unshift(
+                { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, vtype: 0 },
+                { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, vtype: 0 }
+            );
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+        }
+    } else {
+        if (narrator_set.length > 0) {
+            narrator_set = narrator_set.reverse();
+            for (let k = 0; k < narrator_set.length; k++) {
+                voiceL.splice(narrator_set[k], 1)
+            }
+        }
+        await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
     }
 
     game.socket.on('module.BymChnConnector', async (packet) => {
         const data = packet.data;
         const type = packet.type;
         const receiveUserId = packet.receiveUserId;
+        const narT = packet.narratorT;
         const sendUserId = packet.sendUserId;
         if (type == "request") {
             let voice = 0;
@@ -205,8 +284,26 @@ Hooks.once("ready", async function () {
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
             if (game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true;
+            let narrateNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (narT == "narration") narrateNT = true;
+            let descNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (narT == "description") descNT = true;
             if (theatre) {
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (narrateNT) {
+                let index = list.findIndex(k => k.type == 4 && k.id == 'narrate');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (descNT) {
+                let index = list.findIndex(k => k.type == 4 && k.id == 'desc');
                 if (index >= 0) {
                     voice = list[index].voice;
                     volume = list[index].volume;
@@ -407,6 +504,12 @@ async function defvoice() {
     if (game.modules.get('theatre')?.active) {
         def.push({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, volume: bymchndefVolume, vtype: 0 });
     }
+    if (game.modules.get('narrator-tools')?.active) {
+        def.push(
+            { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, volume: bymchndefVolume, vtype: 0 },
+            { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, volume: bymchndefVolume, vtype: 0 }
+        );
+    }
     for (let i = 0; i < users.length; i++) {
         def.push({ type: 0, name: users[i].name, id: users[i].id, voice: 0, volume: bymchndefVolume, vtype: 0 })
     }
@@ -431,6 +534,12 @@ async function voiceSelector() {
     if (game.modules.get('theatre')?.active) {
         def.push({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, volume: bymchndefVolume, vtype: 0 });
     }
+    if (game.modules.get('narrator-tools')?.active) {
+        def.push(
+            { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, volume: bymchndefVolume, vtype: 0 },
+            { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, volume: bymchndefVolume, vtype: 0 }
+        );
+    }
     for (let i = 0; i < users.length; i++) {
         def.push({ type: 0, name: users[i].name, id: users[i].id, voice: 0, volume: bymchndefVolume, vtype: 0 })
     }
@@ -448,7 +557,7 @@ async function voiceSelector() {
         await game.user.setFlag("BymChnConnector", "select-voice", send);
     } else {
         for (let k = 0; k < flags["BymChnConnector"]["select-voice"].length; k++) {
-            let index = send.findIndex(a => (a.id == (flags["BymChnConnector"]["select-voice"][k].id) && (a.name == flags["BymChnConnector"]["select-voice"][k].name)) || (flags["BymChnConnector"]["select-voice"][k].name == "ナレーター"));
+            let index = send.findIndex(a => (a.id == (flags["BymChnConnector"]["select-voice"][k].id) && (a.name == flags["BymChnConnector"]["select-voice"][k].name)) || ([2, 4].includes(flags["BymChnConnector"]["select-voice"][k].type) && a.id == flags["BymChnConnector"]["select-voice"][k].id));
             if (index >= 0) {
                 send[index] = { ...flags["BymChnConnector"]["select-voice"][k] }
             }
@@ -500,10 +609,68 @@ async function voiceSelector() {
     });
 }
 
+//Support for Narrator-Tool's the Journal reading function
+Hooks.on("createChatMessage", async (document, options, userId) => {
+    if (game.modules.get('narrator-tools')?.active) {
+        let active = await game.settings.get("BymChnConnector", "active");
+        let voice = 0;
+        let volume = null;
+        let vtype = 0;
+        if (document.flags['narrator-tools'] && active) {
+            if (["description", "narration"].includes(document.flags['narrator-tools'].type)) {
+                let list = await game.user.getFlag("BymChnConnector", "select-voice");
+                if (document.flags['narrator-tools'].type == "description") {
+                    let index = list.findIndex(k => k.type == 4 && k.id == 'desc');
+                    if (index >= 0) {
+                        voice = list[index].voice;
+                        volume = list[index].volume;
+                        vtype = list[index].vtype;
+                    }
+                } else if (document.flags['narrator-tools'].type == "narration") {
+                    let index = list.findIndex(k => k.type == 4 && k.id == 'narrate');
+                    if (index >= 0) {
+                        voice = list[index].voice;
+                        volume = list[index].volume;
+                        vtype = list[index].vtype;
+                    }
+                }
+                if ((volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
+                if (vtype == 0 || vtype == 1) {
+                    let bouyomiChanClient = new BouyomiChanClient();
+                    volume = volume * 300;
+                    volume = Math.round(volume);
+                    let text = "";
+                    var textdata = htmlTokenizer("<div>" + document.content + "</div>");
+                    for (let k = 0; k < textdata.length; k++) {
+                        if (!textdata[k].match(/^\<(".*?"|'.*?'|[^'"])*?\>/)) {
+                            if (!textdata[k].match(/、$|,$|。$|\.$/)) {
+                                text += textdata[k]
+                                text += "。"
+                            } else {
+                                text += textdata[k]
+                            }
+                        } else if (textdata[k].match(/(<br>|<br \/>)/gi)) {
+                            text += '\n'
+                        }
+                    }
+                    await bouyomiChanClient.talk(text, voice, volume);
+                }
+            }
+        }
+    }
+})
+
 Hooks.on("chatMessage", (chatLog, message, chatData) => {
     const doc = document;
     let parse = ChatLog.parse(message);
-    let skip = false
+    //False to avoid unknown module conflicts as much as possible
+    let skip = false;
+
+    //Determination of Narrator-tools commands
+    if (game.modules.get('narrator-tools')?.active) {
+        skip = ["/desc", "/describe", "/description", "/narrate", "/narration"].includes(parse[1][0]);
+    }
+
     switch (parse[0]) {
         case "roll": case "gmroll": case "blindroll": case "selfroll": case "publicroll": case "macro":
             skip = false;
@@ -523,10 +690,15 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
             let list = await game.user.getFlag("BymChnConnector", "select-voice");
             let theatre = false;
             if (game.modules.get('theatre')?.active) if (Theatre.instance.speakingAs == Theatre.NARRATOR) theatre = true
+            let narrateNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (document.flags["narrator-tools"]?.type == "narration") narrateNT = true;
+            let descNT = false;
+            if (game.modules.get('narrator-tools')?.active) if (document.flags["narrator-tools"]?.type == "description") descNT = true;
             let actorId = null;
             let userid;
             if (isNewVersion) userid = document.user.id; else userid = document.data.user;
-            if (game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[userid].theatreId)?.replace("theatre-", "")
+            if (game.modules.get('theatre')?.active) actorId = (Theatre.instance.usersTyping[userid].theatreId)?.replace("theatre-", "");
+
             if (game.modules.get('speak-as')?.active) {
                 let namelist = doc.getElementById('namelist');
                 let checked = doc.getElementById("speakerSwitch").checked;
@@ -553,6 +725,20 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
                 }
             } else if (theatre) {
                 let index = list.findIndex(k => k.type == 2 && k.id == 'theater');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (narrateNT) {
+                let index = list.findIndex(k => k.type == 4 && k.id == 'narrate');
+                if (index >= 0) {
+                    voice = list[index].voice;
+                    volume = list[index].volume;
+                    vtype = list[index].vtype;
+                }
+            } else if (descNT) {
+                let index = list.findIndex(k => k.type == 4 && k.id == 'desc');
                 if (index >= 0) {
                     voice = list[index].voice;
                     volume = list[index].volume;
@@ -605,7 +791,8 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
             let speaker;
             if (isNewVersion) speaker = { ...document.speaker }; else speaker = { ...document.data.speaker }
             if (actorId != "Narrator" && !!actorId) speaker.actor = actorId
-            let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id }
+            let nT = narrateNT ? "narration" : descNT ? "description" : null;
+            let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id, narratorT: nT }
             if (text != "") game.socket.emit('module.BymChnConnector', packet);
 
             if (active) {
