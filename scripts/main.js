@@ -56,6 +56,15 @@ Hooks.once("init", async function () {
         }
     })
 
+    game.settings.register("BymChnConnector", "playerSetting", {
+        name: "TTSC.BymChnPlayerSetting",
+        hint: "TTSC.BymChnPlayerSettinghint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: false,
+    });
+    
     game.settings.register("BymChnConnector", "active", {
         name: "BymChn active",
         scope: "client",
@@ -135,10 +144,14 @@ Hooks.on('renderSceneControls', (app, html, data) => {
     if (!isGM) {
         const lastMenu = html.find('ol.main-controls').children('*:last');
         const active = game.settings.get("BymChnConnector", "active") ? "active" : "";
-        const slider = isNewVersion ? "fa-duotone fa-sliders" : "fas fa-sliders-h";
-        lastMenu.after(
-            `<li class="scene-control plonly speakersettings" title="${game.i18n.localize("TTSC.ButtonTTSSpeakerSettings")}" role="button"><i class="${slider}"></i></li>`
-        )
+
+        const playerSetting = game.settings.get("BymChnConnector", "playerSetting");
+        if (playerSetting) {
+            const slider = isNewVersion ? "fa-duotone fa-sliders" : "fas fa-sliders-h";
+            lastMenu.after(
+                `<li class="scene-control plonly speakersettings" title="${game.i18n.localize("TTSC.ButtonTTSSpeakerSettings")}" role="button"><i class="${slider}"></i></li>`
+            )
+        }
 
         lastMenu.after(
             `<li class="scene-control plonly activateTTS toggle ${active}" title="${game.i18n.localize("TTSC.ButtonTTSOnOff")}" role="button"><i class="fas fa-comment-dots"></i></li>`

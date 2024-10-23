@@ -4,6 +4,8 @@
   "TTSC.SAPI5Settingslabel" : "SAPI5 voice ID setting",
   "TTSC.BymChnDefaultVolume" : "Default volume of the Boyomi-chan",
   "TTSC.BymChnDefaultVolumehint" : "Default value for individual vocalizer setting (min 0, max 300)",
+  "TTSC.BymChnPlayerSetting" : "Show readout settings to player",
+  "TTSC.BymChnPlayerSettinghint" : "Show individual readout settings for each vocalizer to player (require reload)",
 
   "TTSC.VoiceNarrator" : "Narrator (Theatre Inserts)",
   "TTSC.VoiceNarrateNT" : "Narration (Narrator Tools)",

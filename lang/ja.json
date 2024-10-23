@@ -4,6 +4,8 @@
     "TTSC.SAPI5Settingslabel" : "SAPI5音声ID設定",
     "TTSC.BymChnDefaultVolume" : "棒読みちゃんのデフォルト音量",
     "TTSC.BymChnDefaultVolumehint" : "個別発声者の設定のデフォルト値(最小0、最大300)",
+    "TTSC.BymChnPlayerSetting" : "読み上げ設定をプレイヤーに表示",
+    "TTSC.BymChnPlayerSettinghint" : "個別読み上げ設定ボタンをプレイヤー権限で表示する（要リロード）",
 
     "TTSC.VoiceNarrator" : "ナレーター (Theatre Inserts)",
     "TTSC.VoiceNarrateNT" : "Narration (Narrator Tools)",
