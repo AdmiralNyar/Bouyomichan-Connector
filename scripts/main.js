@@ -239,50 +239,7 @@ Hooks.once("ready", async function () {
 
     let voiceL = await game.user.getFlag("BymChnConnector", "select-voice");
 
-    //Update process of existing data due to renaming of translation files
-    let announcements = await game.user.getFlag("BymChnConnector", "announcements");
-    if (!announcements.nT) {
-        announcements.nT = true;
-        let num = voiceL.findIndex(i => i.type == 2);
-        voiceL[num].name = game.i18n.localize("TTSC.VoiceNarrator");
-        await game.user.setFlag("BymChnConnector", "announcements", announcements);
-    }
-
-    let theatre_set = voiceL.flatMap((i, j) => (i.name == game.i18n.localize("TTSC.VoiceNarrator") && i.type == 2) ? j : []);
-    if (game.modules.get('theatre')?.active) {
-        if (theatre_set.length == 0) {
-            voiceL.unshift({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, vtype: 0 });
-            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
-        }
-    } else {
-        if (theatre_set.length > 0) {
-            theatre_set = theatre_set.reverse();
-            for (let k = 0; k < theatre_set.length; k++) {
-                voiceL.splice(theatre_set[k], 1);
-            }
-            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
-        }
-    }
-
-    let narrator_set = voiceL.flatMap((i, j) => ([game.i18n.localize("TTSC.VoiceNarrateNT"), game.i18n.localize("TTSC.VoiceDescNT")].includes(i.name) && i.type == 4) ? j : []);
-    if (game.modules.get('narrator-tools')?.active) {
-        if (narrator_set.length == 0) {
-            voiceL.unshift(
-                { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, vtype: 0 },
-                { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, vtype: 0 }
-            );
-            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
-        }
-    } else {
-        if (narrator_set.length > 0) {
-            narrator_set = narrator_set.reverse();
-            for (let k = 0; k < narrator_set.length; k++) {
-                voiceL.splice(narrator_set[k], 1)
-            }
-        }
-        await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
-    }
-
+    // Ready to socket
     game.socket.on('module.BymChnConnector', async (packet) => {
         const data = packet.data;
         const type = packet.type;
@@ -362,6 +319,50 @@ Hooks.once("ready", async function () {
             }
         }
     });
+
+    //Update process of existing data due to renaming of translation files
+    let announcements = await game.user.getFlag("BymChnConnector", "announcements");
+    if (!announcements.nT) {
+        announcements.nT = true;
+        let num = voiceL.findIndex(i => i.type == 2);
+        voiceL[num].name = game.i18n.localize("TTSC.VoiceNarrator");
+        await game.user.setFlag("BymChnConnector", "announcements", announcements);
+    }
+
+    let theatre_set = voiceL.flatMap((i, j) => (i.name == game.i18n.localize("TTSC.VoiceNarrator") && i.type == 2) ? j : []);
+    if (game.modules.get('theatre')?.active) {
+        if (theatre_set.length == 0) {
+            voiceL.unshift({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, vtype: 0 });
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+        }
+    } else {
+        if (theatre_set.length > 0) {
+            theatre_set = theatre_set.reverse();
+            for (let k = 0; k < theatre_set.length; k++) {
+                voiceL.splice(theatre_set[k], 1);
+            }
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+        }
+    }
+
+    let narrator_set = voiceL.flatMap((i, j) => ([game.i18n.localize("TTSC.VoiceNarrateNT"), game.i18n.localize("TTSC.VoiceDescNT")].includes(i.name) && i.type == 4) ? j : []);
+    if (game.modules.get('narrator-tools')?.active) {
+        if (narrator_set.length == 0) {
+            voiceL.unshift(
+                { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, vtype: 0 },
+                { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, vtype: 0 }
+            );
+            await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+        }
+    } else {
+        if (narrator_set.length > 0) {
+            narrator_set = narrator_set.reverse();
+            for (let k = 0; k < narrator_set.length; k++) {
+                voiceL.splice(narrator_set[k], 1)
+            }
+        }
+        await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
+    }
 });
 
 class Sapi5ListData {
