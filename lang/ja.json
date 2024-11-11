@@ -4,8 +4,12 @@
     "TTSC.SAPI5Settingslabel" : "SAPI5音声ID設定",
     "TTSC.BymChnDefaultVolume" : "棒読みちゃんのデフォルト音量",
     "TTSC.BymChnDefaultVolumehint" : "個別発声者の設定のデフォルト値(最小0、最大300)",
+    "TTSC.BymChnWhisperSetting" : "ウィスパー発言を読み上げさせる",
+    "TTSC.BymChnWhisperSettingHint" : "有効の場合、その発言が自分に見えていない状態であっても棒読みちゃんが読み上げる",
+    "TTSC.BymChnPolyglotSetting" : "言語設定のある発言を棒読みちゃんに読み上げさせる",
+    "TTSC.BymChnPolyglotSettingHint" : "有効の場合、Polyglot Module機能の言語設定が有効のチャットメッセージを読み上げる",
     "TTSC.BymChnPlayerSetting" : "読み上げ設定をプレイヤーに表示",
-    "TTSC.BymChnPlayerSettinghint" : "個別読み上げ設定ボタンをプレイヤー権限で表示する（要リロード）",
+    "TTSC.BymChnPlayerSettinghint" : "個別読み上げ設定ボタンをプレイヤー権限で表示する（自動リロード）",
 
     "TTSC.VoiceNarrator" : "ナレーター (Theatre Inserts)",
     "TTSC.VoiceNarrateNT" : "Narration (Narrator Tools)",
