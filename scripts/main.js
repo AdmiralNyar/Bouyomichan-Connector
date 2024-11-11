@@ -56,6 +56,35 @@ Hooks.once("init", async function () {
         }
     })
 
+    game.settings.register("BymChnConnector", "whisperSetting", {
+        name: "TTSC.BymChnWhisperSetting",
+        hint: "TTSC.BymChnWhisperSettingHint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: false
+    })
+
+    const poly = game.modules.get('polyglot')?.active;
+    game.settings.register("BymChnConnector", "polyglotSetting", {
+        name: "TTSC.BymChnPolyglotSetting",
+        hint: "TTSC.BymChnPolyglotSettingHint",
+        scope: "world",
+        config: poly,
+        type: Boolean,
+        default: false
+    })
+
+    game.settings.register("BymChnConnector", "playerSetting", {
+        name: "TTSC.BymChnPlayerSetting",
+        hint: "TTSC.BymChnPlayerSettinghint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: false,
+        requiresReload: true
+    });
+
     game.settings.register("BymChnConnector", "active", {
         name: "BymChn active",
         scope: "client",
@@ -130,16 +159,18 @@ Hooks.on('getSceneControlButtons', (buttons) => {
     }
 });
 
-Hooks.on('renderSceneControls', (app, html, data) => {
+Hooks.on('renderSceneControls', async (app, html, data) => {
     const isGM = game.user.isGM;
     if (!isGM) {
         const lastMenu = html.find('ol.main-controls').children('*:last');
-        const active = game.settings.get("BymChnConnector", "active") ? "active" : "";
-        const slider = isNewVersion ? "fa-duotone fa-sliders" : "fas fa-sliders-h";
-        lastMenu.after(
-            `<li class="scene-control plonly speakersettings" title="${game.i18n.localize("TTSC.ButtonTTSSpeakerSettings")}" role="button"><i class="${slider}"></i></li>`
-        )
-
+        const active = await game.settings.get("BymChnConnector", "active") ? "active" : "";
+        const playerSetting = await game.settings.get("BymChnConnector", "playerSetting");
+        if (playerSetting) {
+            const slider = isNewVersion ? "fa-duotone fa-sliders" : "fas fa-sliders-h";
+            lastMenu.after(
+                `<li class="scene-control plonly speakersettings" title="${game.i18n.localize("TTSC.ButtonTTSSpeakerSettings")}" role="button"><i class="${slider}"></i></li>`
+            )
+        }
         lastMenu.after(
             `<li class="scene-control plonly activateTTS toggle ${active}" title="${game.i18n.localize("TTSC.ButtonTTSOnOff")}" role="button"><i class="fas fa-comment-dots"></i></li>`
         )
@@ -166,17 +197,17 @@ Hooks.once("ready", async function () {
     }
 
     //Version control at startup
-    const b = game.user.getFlag("BymChnConnector", "announcements");
+    const b = await game.user.getFlag("BymChnConnector", "announcements");
     if (!!b) {
         let lastversion = duplicate(b.version);
         const nowversion = (await game.modules.get("BymChnConnector")).version;
         if (compare(nowversion, lastversion) == 1) {
             // Automatic display of update announcements to be implemented (TBD)
             b.version = nowversion;
-            game.user.setFlag("BymChnConnector", "announcements", b);
+            await game.user.setFlag("BymChnConnector", "announcements", b);
         }
     } else {
-        game.user.setFlag("BymChnConnector", "announcements", { version: (await game.modules.get("BymChnConnector")).version });
+        await game.user.setFlag("BymChnConnector", "announcements", { version: (await game.modules.get("BymChnConnector")).version });
     }
 
     game.settings.register("BymChnConnector", "voice-list", {
@@ -208,7 +239,7 @@ Hooks.once("ready", async function () {
         ],
         onChange: async (list) => {
             let selectVoice = await game.user.getFlag("BymChnConnector", "select-voice")
-            let defvol = game.settings.get("BymChnConnector", "BymChnDefVolume")
+            let defvol = await game.settings.get("BymChnConnector", "BymChnDefVolume")
             for (let i = (selectVoice.length - 1); i >= 0; i--) {
                 if (selectVoice[i].vtype == 1) {
                     let find = false
@@ -228,17 +259,21 @@ Hooks.once("ready", async function () {
 
     //Update process of existing data due to renaming of translation files
     let announcements = await game.user.getFlag("BymChnConnector", "announcements");
-    if (!announcements.nT) {
+    if (!announcements?.nT) {
         announcements.nT = true;
         let num = voiceL.findIndex(i => i.type == 2);
         voiceL[num].name = game.i18n.localize("TTSC.VoiceNarrator");
         await game.user.setFlag("BymChnConnector", "announcements", announcements);
     }
 
+    let bymchndefVolume = await game.settings.get("BymChnConnector", "BymChnDefVolume");
+    bymchndefVolume = Math.round((bymchndefVolume * 1000) / 300) / 1000;
+    if (bymchndefVolume != 0 && !bymchndefVolume) bymchndefVolume = -1;
+
     let theatre_set = voiceL.flatMap((i, j) => (i.name == game.i18n.localize("TTSC.VoiceNarrator") && i.type == 2) ? j : []);
     if (game.modules.get('theatre')?.active) {
         if (theatre_set.length == 0) {
-            voiceL.unshift({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, vtype: 0 });
+            voiceL.unshift({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, vtype: 0, volume: bymchndefVolume });
             await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
         }
     } else {
@@ -255,8 +290,8 @@ Hooks.once("ready", async function () {
     if (game.modules.get('narrator-tools')?.active) {
         if (narrator_set.length == 0) {
             voiceL.unshift(
-                { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, vtype: 0 },
-                { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, vtype: 0 }
+                { type: 4, name: game.i18n.localize("TTSC.VoiceNarrateNT"), id: "narrate", voice: 0, vtype: 0, volume: bymchndefVolume },
+                { type: 4, name: game.i18n.localize("TTSC.VoiceDescNT"), id: "desc", voice: 0, vtype: 0, volume: bymchndefVolume }
             );
             await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
         }
@@ -270,6 +305,7 @@ Hooks.once("ready", async function () {
         await game.user.setFlag("BymChnConnector", "select-voice", voiceL);
     }
 
+    // Ready to socket
     game.socket.on('module.BymChnConnector', async (packet) => {
         const data = packet.data;
         const type = packet.type;
@@ -660,29 +696,29 @@ Hooks.on("createChatMessage", async (document, options, userId) => {
     }
 })
 
-Hooks.on("chatMessage", (chatLog, message, chatData) => {
+Hooks.on("chatMessage", async (chatLog, message, chatData) => {
     const doc = document;
     let parse = ChatLog.parse(message);
     //False to avoid unknown module conflicts as much as possible
     let skip = false;
 
-    //Determination of Narrator-tools commands
-    if (game.modules.get('narrator-tools')?.active) {
-        skip = ["/desc", "/describe", "/description", "/narrate", "/narration"].includes(parse[1][0]);
-    }
-
     switch (parse[0]) {
         case "roll": case "gmroll": case "blindroll": case "selfroll": case "publicroll": case "macro":
             skip = false;
             break;
-        case "whisper": case "reply": case "gm": case "players": case "ic": case "emote": case "ooc": case "none":
+        case "ic": case "emote": case "ooc": case "none":
             skip = true;
             break;
+    }
+    if (!skip) {
+        let whisper = await game.settings.get("BymChnConnector", "whisperSetting");
+        if (["whisper", "reply", "gm", "players"].includes(parse[0]) && whisper) skip = true;
     }
 
     if (skip) {
         Hooks.once("preCreateChatMessage", async (document, data, options, userId) => {
             let text = "";
+            let polyglot = (!game.settings.get("BymChnConnector", "polyglotSetting") && game.modules.get('polyglot')?.active);
             let active = await game.settings.get("BymChnConnector", "active");
             let voice = 0;
             let volume = null;
@@ -792,16 +828,19 @@ Hooks.on("chatMessage", (chatLog, message, chatData) => {
             if (isNewVersion) speaker = { ...document.speaker }; else speaker = { ...document.data.speaker }
             if (actorId != "Narrator" && !!actorId) speaker.actor = actorId
             let nT = narrateNT ? "narration" : descNT ? "description" : null;
-            let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id, narratorT: nT }
-            if (text != "") game.socket.emit('module.BymChnConnector', packet);
+            let lang = !polyglot ? null : document.getFlag('polyglot', 'language');
+            if (!lang) {
+                let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id, narratorT: nT }
+                if (text != "") game.socket.emit('module.BymChnConnector', packet);
 
-            if (active) {
-                if ((volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
-                if (vtype == 0 || vtype == 1) {
-                    let bouyomiChanClient = new BouyomiChanClient();
-                    volume = volume * 300;
-                    volume = Math.round(volume)
-                    await bouyomiChanClient.talk(text, voice, volume);
+                if (active) {
+                    if ((volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
+                    if (vtype == 0 || vtype == 1) {
+                        let bouyomiChanClient = new BouyomiChanClient();
+                        volume = volume * 300;
+                        volume = Math.round(volume)
+                        await bouyomiChanClient.talk(text, voice, volume);
+                    }
                 }
             }
         });
