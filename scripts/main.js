@@ -93,6 +93,227 @@ Hooks.once("init", async function () {
         default: true
     });
 
+    game.settings.register("BymChnConnector", "nijiVoiceFunc", {
+        name: "TTSC.NijiVoiceLinkageFunction",
+        hint: "TTSC.NijiVoiceLinkageFunctionHint",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        requiresReload: true
+    })
+
+    const nijiFunc = await game.settings.get("BymChnConnector", "nijiVoiceFunc")
+
+    if (nijiFunc) {
+        game.settings.register("BymChnConnector", "nijiVoiceToLocalAPI", {
+            name: "TTSC.NijiVoiceLinkageAPI",
+            hint: "TTSC.NijiVoiceLinkageAPIHint",
+            scope: "client",
+            config: true,
+            type: String,
+            default: "http://localhost:2000"
+        })
+
+        game.settings.register("BymChnConnector", "nijiVoiceLimit", {
+            name: "TTSC.NijiVoiceLimit",
+            hint: "TTSC.NijiVoiceLimitHint",
+            scope: "client",
+            config: true,
+            type: Number,
+            default: 500
+        })
+
+        game.settings.register("BymChnConnector", "addNijiVoiceList", {
+            name: "TTSC.NijiVoiceActorAddToList",
+            hint: "TTSC.NijiVoiceActorAddToListHint",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: false,
+            onChange: async (set) => {
+                if (set) {
+                    await NijiVoice.setVoiceActorData()
+                    game.settings.set("BymChnConnector", "addNijiVoiceList", false)
+                }
+            }
+        })
+
+        game.settings.registerMenu("BymChnConnector", "nijiVoiceActorTable", {
+            name: "TTSC.NijiVoiceIdSettings",
+            label: "TTSC.NijiVoiceIdSettings",
+            hint: "TTSC.NijiVoiceIdSettingsHint",
+            icon: "fas fa-book",
+            type: NijiVoiceListSettings,
+            restricted: false
+        })
+
+        game.settings.register("BymChnConnector", "makeNijiVoiceList", {
+            name: "TTSC.NijiVoiceActorJournalCreate",
+            hint: "TTSC.NijiVoiceActorJournalCreateHint",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: false,
+            onChange: async (set) => {
+                if (set) {
+                    await NijiVoice.getVoiceActorData()
+                    game.settings.set("BymChnConnector", "makeNijiVoiceList", false)
+                }
+            }
+        })
+    }
+
+    const NijiVoice = {
+        async setVoiceActorData() {
+            const server = await game.settings.get("BymChnConnector", "nijiVoiceToLocalAPI");
+            try {
+                const list = (await fetch(`${server}/getList`));
+                const data = (await list.json()).response.voiceActors;
+                var nijiList = await game.settings.get("BymChnConnector", "niji-list");
+                var existingIds = new Set(nijiList.map(item => item.num));
+                data.forEach(item => { if (!existingIds.has(item.id)) { nijiList.push({ name: item.name, type: 3, num: item.id }); existingIds.add(item.id); } });
+                game.settings.set("BymChnConnector", "niji-list", nijiList)
+            } catch (e) {
+                console.error(e)
+            }
+
+        },
+        async getVoiceActorData() {
+            const server = await game.settings.get("BymChnConnector", "nijiVoiceToLocalAPI");
+            try {
+                const list = (await fetch(`${server}/getList`));
+                const data = (await list.json()).response.voiceActors;
+                const journalTitle = game.i18n.localize("TTSC.NijiVoiceJournalTitle");
+
+                // 表形式で表示するHTMLを作成
+                const generateTableHTML = (data) => {
+                    let html = `<table border="1" style="border-collapse:collapse;width:100%;text-align:left;">
+    <thead>
+      <tr>
+        <th style="min-width:max-content;text-align:center">${game.i18n.localize("TTSC.VoiceName")}</th>
+        <th style="text-align:center">${game.i18n.localize("TTSC.VoiceImg")}</th>
+        <th style="text-align:center">${game.i18n.localize("TTSC.VoiceSex")}</th>
+        <th style="text-align:center">${game.i18n.localize("TTSC.Age")}</th>
+        <th style="width:35%;text-align:center">${game.i18n.localize("TTSC.Sample")}</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+                    data.forEach(user => {
+                        const genderText = user.gender === "MALE" ? game.i18n.localize("TTSC.VoiceMale") : user.gender === "FEMALE" ? game.i18n.localize("TTSC.VoiceFemale") : game.i18n.localize("TTSC.VoiceUndefined");
+                        const ageText = user.age ? (String(user.age) + " " + game.i18n.localize("TTSC.YearsOld")) : game.i18n.localize("TTSC.VoiceUndefined");
+                        const ruby = user.nameReading ? user.nameReading : "";
+                        html += `
+      <tr>
+        <td style="vertical-align: middle;white-space: nowrap;"><ruby><p>${user.name}</p><rt>${ruby}</rt></ruby></td>
+        <td><img src="${user.mediumImageUrl}" alt="${user.name}" style="width:100px;height:auto;" class="centered"></td>
+        <td style="vertical-align: middle;white-space: nowrap;">${genderText}</td>
+        <td style="vertical-align: middle;white-space: nowrap;">${ageText}</td>
+        <td style="vertical-align: middle"><div style="overflow:auto;height:100px;margin:1px"><code><em>${user.sampleScript}</em></code></div><audio controls style="width:100%"><source src="${user.sampleVoiceUrl}" type="audio/wav"></audio></td>
+      </tr>`;
+                    });
+
+                    html += `
+    </tbody>
+  </table>`;
+
+                    return html;
+                };
+
+                const createAgeData = async (entry, origin, sex) => {
+                    var age_group
+                    var lang = JSON.parse(!!game.settings.storage.get('client')["core.language"] ? game.settings.storage.get('client')["core.language"] : "null");
+                    if (!lang) lang = game.settings.settings.get('core.language').default ? game.settings.settings.get('core.language').default : null
+                    if (lang == 'ja') {
+                        age_group = [{ type: game.i18n.localize("TTSC.AgeChild"), low: 0, high: 14 }, { type: game.i18n.localize("TTSC.AgeYoung"), low: 15, high: 24 }, { type: game.i18n.localize("TTSC.AgeAdult"), low: 25, high: 44 }, { type: game.i18n.localize("TTSC.AgeMidlife"), low: 45, high: 64 }, { type: game.i18n.localize("TTSC.AgeElder"), low: 65 }]
+                    } else if (lang == 'en') {
+                        age_group = [{ type: game.i18n.localize("TTSC.AgeChild"), low: 0, high: 12 }, { type: game.i18n.localize("TTSC.AgeYoung"), low: 13, high: 19 }, { type: game.i18n.localize("TTSC.AgeAdult"), low: 20, high: 39 }, { type: game.i18n.localize("TTSC.AgeMidlife"), low: 40, high: 60 }, { type: game.i18n.localize("TTSC.AgeElder"), low: 61 }]
+                    }
+
+                    for (let i = 0; i < age_group.length; i++) {
+                        var age_data;
+                        if (age_group[i].type != game.i18n.localize("TTSC.AgeElder")) {
+                            age_data = origin.filter(user => (user.age < age_group[i].high) && (user.age >= age_group[i].low))
+                        } else {
+                            age_data = origin.filter(user => (!user.age) || (user.age >= age_group[i].low))
+                        }
+                        if (age_data.length > 0) {
+                            const ageTableHTML = generateTableHTML(age_data);
+                            await createJournalEntryPage(entry = entry, title = (age_group[i].type + sex), content = ageTableHTML, lv = 2);
+                        }
+                    }
+                }
+
+                const createPageData = async (entry, data) => {
+
+                    const allTableHTML = generateTableHTML(data);
+                    if (isNewVersion) {
+                        await createJournalEntryPage(entry = entry, title = game.i18n.localize("TTSC.VoiceAll"), content = allTableHTML, lv = 1);
+                        await createAgeData(entry = entry, origin = data, sex = `(${game.i18n.localize("TTSC.VoiceAll")})`)
+
+                        const maleData = data.filter(user => user.gender === "MALE");
+                        if (maleData.length > 0) {
+                            const maleTableHTML = generateTableHTML(maleData);
+                            await createJournalEntryPage(entry = entry, title = game.i18n.localize("TTSC.VoiceMale"), content = maleTableHTML, lv = 1);
+                            await createAgeData(entry = entry, origin = maleData, sex = `(${game.i18n.localize("TTSC.VoiceMale")})`);
+                        }
+
+                        const femaleData = data.filter(user => user.gender === "FEMALE");
+                        if (femaleData.length > 0) {
+                            const femaleTableHTML = generateTableHTML(femaleData);
+                            await createJournalEntryPage(entry = entry, title = game.i18n.localize("TTSC.VoiceFemale"), content = femaleTableHTML, lv = 1);
+                            await createAgeData(entry = entry, origin = femaleData, sex = `(${game.i18n.localize("TTSC.VoiceFemale")})`);
+                        }
+                    } else {
+                        await entry.update({ 'content': allTableHTML })
+                    }
+                }
+
+                // Journal Entry Pageを作成する関数
+                const createJournalEntryPage = async (entry, title, content, lv) => {
+                    const pageData = {
+                        name: title,
+                        type: "text",
+                        title: { show: false, level: lv },
+                        text: {
+                            content: content,
+                            format: 1 // HTML形式
+                        },
+                        flags: {}
+                    };
+
+                    // JournalEntryPageを作成
+                    const page = await entry.createEmbeddedDocuments("JournalEntryPage", [pageData]);
+                    console.log(`Journal Entry Page "${title}" has been created.`);
+                };
+
+                // Journal Entryを作成する関数
+                const createJournalEntry = async (title, content) => {
+                    const journalData = {
+                        name: title,
+                        folder: null,
+                        flags: {},
+                    };
+
+                    // JournalEntryを作成
+                    const journalEntry = await JournalEntry.create(journalData);
+                    console.log(`Journal Entry "${title}" has been created with ID: ${journalEntry.id}`);
+
+                    // Journal Entry Pageを追加
+                    await createPageData(journalEntry, content);
+                };
+
+                // スクリプトの実行
+                (async () => {
+                    await createJournalEntry(journalTitle, data);
+                })();
+            } catch (e) {
+                console.error(e)
+            }
+        }
+    }
+
     /**
      *  i = 10 , k = 11 or (i = "pass", k = "pasta")
      *  {{#uniqueif i "===" k}}
@@ -198,16 +419,17 @@ Hooks.once("ready", async function () {
 
     //Version control at startup
     const b = await game.user.getFlag("BymChnConnector", "announcements");
+    const module_data = (await game.modules.get("BymChnConnector"));
+    const nowversion = module_data.version ? module_data.version : module_data.data.version ? module_data.data.version : "0.0.0";
     if (!!b) {
-        let lastversion = duplicate(b.version);
-        const nowversion = (await game.modules.get("BymChnConnector")).version;
+        let lastversion = b.version ? duplicate(b.version) : "0.0.0";
         if (compare(nowversion, lastversion) == 1) {
             // Automatic display of update announcements to be implemented (TBD)
             b.version = nowversion;
             await game.user.setFlag("BymChnConnector", "announcements", b);
         }
     } else {
-        await game.user.setFlag("BymChnConnector", "announcements", { version: (await game.modules.get("BymChnConnector")).version });
+        await game.user.setFlag("BymChnConnector", "announcements", { version: nowversion });
     }
 
     game.settings.register("BymChnConnector", "voice-list", {
@@ -247,11 +469,40 @@ Hooks.once("ready", async function () {
                         if (list[k].num == selectVoice[i].voice) find = true
                     }
                     if (!find) {
+                        selectVoice[i].voice = 0
                         selectVoice[i].vtype = 0
                         selectVoice[i].volume = defvol
                     }
                 }
             }
+            game.user.setFlag("BymChnConnector", "select-voice", selectVoice)
+        }
+    });
+
+    game.settings.register("BymChnConnector", "niji-list", {
+        name: "BymChn niji-list",
+        scope: "client",
+        config: false,
+        type: Object,
+        default: [],
+        onChange: async (list) => {
+            let selectVoice = await game.user.getFlag("BymChnConnector", "select-voice")
+            let defvol = await game.settings.get("BymChnConnector", "BymChnDefVolume");
+            defvol = Math.round((defvol * 1000) / 300) / 1000;
+            for (let i = (selectVoice.length - 1); i >= 0; i--) {
+                if (selectVoice[i].vtype == 3) {
+                    let find = false
+                    for (let k = 0; k < list.length; k++) {
+                        if (list[k].num == selectVoice[i].voice) find = true
+                    }
+                    if (!find) {
+                        selectVoice[i].voice = 0
+                        selectVoice[i].vtype = 0
+                        selectVoice[i].volume = defvol
+                    }
+                }
+            }
+            game.user.setFlag("BymChnConnector", "select-voice", selectVoice)
         }
     });
 
@@ -262,7 +513,7 @@ Hooks.once("ready", async function () {
     if (!announcements?.nT) {
         announcements.nT = true;
         let num = voiceL.findIndex(i => i.type == 2);
-        voiceL[num].name = game.i18n.localize("TTSC.VoiceNarrator");
+        if (num > -1) voiceL[num].name = game.i18n.localize("TTSC.VoiceNarrator");
         await game.user.setFlag("BymChnConnector", "announcements", announcements);
     }
 
@@ -381,6 +632,30 @@ Hooks.once("ready", async function () {
                     volume = volume * 300;
                     volume = Math.round(volume)
                     await bouyomiChanClient.talk(data.message, voice, volume);
+                }
+            } else if (vtype == 3) {
+                if (text.endsWith("。")) text = text.slice(0, -1);
+                const limit = game.settings.get("BymChnConnector", "nijiVoiceLimit");
+                const server = await game.settings.get("BymChnConnector", "nijiVoiceToLocalAPI");
+                let n = document.alias ? document.alias : "No Name";
+                try {
+                    const voiceData = (await fetch(`${server}/getVoice`, {
+                        method: "POST",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({
+                            speaker: n,
+                            text: text,
+                            id: voice,
+                            speed: 1.0,
+                            volume: volume
+                        })
+                    }))
+                    const d = (await voiceData.json()).response;
+                    if (!!d.generatedVoice?.remainingCredits || d.generatedVoice?.remainingCredits == 0) {
+                        if (d.generatedVoice?.remainingCredits < limit) ui.notifications.notify(game.i18n.format("TTSC.NotifyNijiVoiceLimit", { cr: d.generatedVoice?.remainingCredits }))
+                    }
+                } catch (e) {
+                    console.error(e)
                 }
             }
         }
@@ -530,6 +805,138 @@ class Sapi5ListSettings extends FormApplication {
     }
 }
 
+class NijiVoiceListData {
+    static nijiList() {
+        return game.settings.get("BymChnConnector", "niji-list");
+    }
+
+    static deleteNijilist(name, index, num) {
+        let nijiList = game.settings.get("BymChnConnector", "niji-list");
+        if (nijiList[index].name == name && nijiList[index].num == num) {
+            let del = nijiList.splice(index, 1);
+        }
+        return game.settings.set("BymChnConnector", "niji-list", nijiList)
+    }
+
+    static createNijiList() {
+        let nijiList = game.settings.get("BymChnConnector", "niji-list");
+        nijiList.push({ name: "", type: 3, num: "" })
+        return game.settings.set("BymChnConnector", "niji-list", nijiList)
+    }
+}
+
+class NijiVoiceListSettings extends FormApplication {
+    static get defaultOptions() {
+        return mergeObject(super.defaultOptions, {
+            title: game.i18n.localize("TTSC.WindowNijiVoiceSettingsTitle"),
+            id: 'niji-settings',
+            template: 'modules/BymChnConnector/templates/niji-settings.html',
+            width: 550,
+            height: 'auto',
+            resizable: true,
+            closeOnSubmit: false
+        })
+    }
+
+    async getData() {
+        let data = super.getData();
+        data.nijiList = NijiVoiceListData.nijiList();
+        data.userid = game.user.id;
+        return data
+    }
+
+    activateListeners(html) {
+        super.activateListeners(html)
+
+        html.find("a.add-voice").on("click", async (event) => {
+            event.preventDefault();
+            NijiVoiceListData.createNijiList();
+            this.render()
+        })
+        html.find("a.voice-delete").on("click", async (event) => {
+            event.preventDefault();
+            const targetName = $(event.currentTarget).parent().parent().data("name");
+            const targetIndex = $(event.currentTarget).parent().parent().data("id");
+            const targetNum = $(event.currentTarget).parent().parent().data("num");
+            const dlg = new Dialog({
+                title: game.i18n.localize("TTSC.WindowNijiVoiceDeleteTitle"),
+                content: `<p>${game.i18n.localize("TTSC.WindowCheckDeletecontent")}</p>`,
+                buttons: {
+                    delete: {
+                        label: game.i18n.localize("TTSC.WindowDelete"),
+                        icon: '<i class="fas fa-trash-alt"></i>',
+                        callback: async () => {
+                            NijiVoiceListData.deleteNijilist(targetName, targetIndex, targetNum);
+                            this.render();
+                        }
+                    },
+                    cancel: {
+                        label: game.i18n.localize("TTSC.WindowCancel"),
+                        icon: '<i class="fas fa-ban"></i>',
+                        callback: () => { }
+                    }
+                },
+                default: 'cancel',
+                close: () => { }
+            });
+            dlg.render(true);
+        })
+    }
+
+    async _updateObject(event, formData) {
+        let nijiList = NijiVoiceListData.nijiList();
+        const data = foundry.utils.flattenObject(formData);
+        let nameNone = false
+        let numNone = false
+        for (let i = 0; i < nijiList.length; i++) {
+            let name = data[`${i}${game.user.id}`];
+            let num = data[`${i}${game.user.id}num`];
+            if (!!name) {
+                nijiList[i].name = name;
+            } else {
+                nameNone = true;
+            }
+            if (!!num) {
+                nijiList[i].num = num;
+            } else {
+                numNone = true;
+            }
+        }
+        if (nameNone || numNone) {
+            const dlg = new Dialog({
+                title: game.i18n.localize("TTSC.WindowNoNameNoIdtitle"),
+                content: `<p>${game.i18n.localize("TTSC.WindowNoNameNoIdcontent")}</p>`,
+                buttons: {
+                    delete: {
+                        label: game.i18n.localize("TTSC.WindowYes"),
+                        icon: '<i class="fas fa-trash-alt"></i>',
+                        callback: async () => {
+                            for (let j = (nijiList.length - 1); j >= 0; j--) {
+                                if (!nijiList[j].name || !nijiList[j].num) {
+                                    nijiList.splice(j, 1)
+                                }
+                            }
+                            await game.settings.set("BymChnConnector", "niji-list", nijiList);
+                            this.close();
+                        }
+                    },
+                    cancel: {
+                        label: game.i18n.localize("TTSC.WindowNo"),
+                        icon: '<i class="fas fa-ban"></i>',
+                        callback: () => { }
+                    }
+                },
+                default: 'cancel',
+                close: () => { }
+            });
+            dlg.render(true);
+        } else {
+            game.settings.set("BymChnConnector", "niji-list", nijiList);
+            this.close();
+        }
+    }
+}
+
 async function defvoice() {
     const users = game.users.contents;
     let def = [];
@@ -562,11 +969,12 @@ async function voiceSelector() {
     let def = [];
     let voiceList = await game.settings.get("BymChnConnector", "voice-list");
     let sapi5List = await game.settings.get("BymChnConnector", "sapi5-list");
+    let nijiList = await game.settings.get("BymChnConnector", "niji-list");
     let bymchndefVolume = await game.settings.get("BymChnConnector", "BymChnDefVolume");
     bymchndefVolume = Math.round((bymchndefVolume * 1000) / 300) / 1000;
     if (bymchndefVolume != 0 && !bymchndefVolume) bymchndefVolume = -1;
 
-    let sendList = [...voiceList, ...sapi5List];
+    let sendList = [...voiceList, ...sapi5List, ...nijiList];
     if (game.modules.get('theatre')?.active) {
         def.push({ type: 2, name: game.i18n.localize("TTSC.VoiceNarrator"), id: "theater", voice: 0, volume: bymchndefVolume, vtype: 0 });
     }
@@ -671,25 +1079,54 @@ Hooks.on("createChatMessage", async (document, options, userId) => {
                     }
                 }
                 if ((volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
+                let text = "";
+                var textdata = htmlTokenizer("<div>" + document.content + "</div>");
+                for (let k = 0; k < textdata.length; k++) {
+                    if (!textdata[k].match(/^\<(".*?"|'.*?'|[^'"])*?\>/)) {
+                        if (!textdata[k].match(/、$|,$|。$|\.$/)) {
+                            text += textdata[k]
+                            text += "。"
+                        } else {
+                            text += textdata[k]
+                        }
+                    } else if (textdata[k].match(/(<br>|<br \/>)/gi)) {
+                        text += '\n'
+                    }
+                }
                 if (vtype == 0 || vtype == 1) {
                     let bouyomiChanClient = new BouyomiChanClient();
                     volume = volume * 300;
                     volume = Math.round(volume);
-                    let text = "";
-                    var textdata = htmlTokenizer("<div>" + document.content + "</div>");
-                    for (let k = 0; k < textdata.length; k++) {
-                        if (!textdata[k].match(/^\<(".*?"|'.*?'|[^'"])*?\>/)) {
-                            if (!textdata[k].match(/、$|,$|。$|\.$/)) {
-                                text += textdata[k]
-                                text += "。"
-                            } else {
-                                text += textdata[k]
-                            }
-                        } else if (textdata[k].match(/(<br>|<br \/>)/gi)) {
-                            text += '\n'
-                        }
-                    }
+                    let speaker;
+                    if (isNewVersion) speaker = { ...document.speaker }; else speaker = { ...document.data.speaker }
+                    let nT = document.flags['narrator-tools'].type;
+                    let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id, narratorT: nT }
+                    if (text != "") game.socket.emit('module.BymChnConnector', packet);
                     await bouyomiChanClient.talk(text, voice, volume);
+                } else if (vtype == 3) {
+                    if (text.endsWith("。")) text = text.slice(0, -1);
+                    const limit = game.settings.get("BymChnConnector", "nijiVoiceLimit");
+                    const server = await game.settings.get("BymChnConnector", "nijiVoiceToLocalAPI");
+                    let n = document.alias ? document.alias : "No Name";
+                    try {
+                        const voiceData = (await fetch(`${server}/getVoice`, {
+                            method: "POST",
+                            headers: { "content-type": "application/json" },
+                            body: JSON.stringify({
+                                speaker: n,
+                                text: text,
+                                id: voice,
+                                speed: 1.0,
+                                volume: volume
+                            })
+                        }))
+                        const d = (await voiceData.json()).response;
+                        if (!!d.generatedVoice?.remainingCredits || d.generatedVoice?.remainingCredits == 0) {
+                            if (d.generatedVoice?.remainingCredits < limit) ui.notifications.notify(game.i18n.format("TTSC.NotifyNijiVoiceLimit", { cr: d.generatedVoice?.remainingCredits }))
+                        }
+                    } catch (e) {
+                        console.error(e)
+                    }
                 }
             }
         }
@@ -832,7 +1269,6 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) => {
             if (!lang) {
                 let packet = { data: { message: text, speaker: speaker }, type: "request", sendUserId: game.user.id, narratorT: nT }
                 if (text != "") game.socket.emit('module.BymChnConnector', packet);
-
                 if (active) {
                     if ((volume > 1 || volume < 0) && (vtype == 0 || vtype == 1)) volume = -1;
                     if (vtype == 0 || vtype == 1) {
@@ -840,6 +1276,30 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) => {
                         volume = volume * 300;
                         volume = Math.round(volume)
                         await bouyomiChanClient.talk(text, voice, volume);
+                    } else if (vtype == 3) {
+                        const limit = game.settings.get("BymChnConnector", "nijiVoiceLimit");
+                        if (text.endsWith("。")) text = text.slice(0, -1);
+                        const server = await game.settings.get("BymChnConnector", "nijiVoiceToLocalAPI");
+                        let n = document.alias ? document.alias : "No Name";
+                        try {
+                            const voiceData = (await fetch(`${server}/getVoice`, {
+                                method: "POST",
+                                headers: { "content-type": "application/json" },
+                                body: JSON.stringify({
+                                    speaker: n,
+                                    text: text,
+                                    id: voice,
+                                    speed: 1.0,
+                                    volume: volume
+                                })
+                            }))
+                            const d = (await voiceData.json()).response;
+                            if (!!d.generatedVoice?.remainingCredits || d.generatedVoice?.remainingCredits == 0) {
+                                if (d.generatedVoice?.remainingCredits < limit) ui.notifications.notify(game.i18n.format("TTSC.NotifyNijiVoiceLimit", { cr: d.generatedVoice?.remainingCredits }))
+                            }
+                        } catch (e) {
+                            console.error(e)
+                        }
                     }
                 }
             }

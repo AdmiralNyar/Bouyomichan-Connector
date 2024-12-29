@@ -3,7 +3,7 @@
     "title": "Bouyomichan Connector",
     "description": "Bouyomichan Connector",
     "author": "Admiral Nyar",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "minimumCoreVersion": "9",
     "compatibleCoreVersion": "12",
     "scripts": [
