@@ -92,6 +92,64 @@
    　<br>
    　<br>
 
+### にじボイスのボイスアクターを追加する
+
+**まず、にじボイス[^1]は有料であり、ボイスを使用する度に課金して得たクレジットを消費することにご注意ください(にじボイス API は通常のにじボイスと金額が違っており、2024 年 12 月現在では 1 万字/825 円となってます)**<br>
+
+1. にじボイス API に google アカウント等から登録して、ログインします（にじボイス API のログインページは通常のにじボイスのログインページと異なっているので注意！）
+   ![にじボイス登録](https://github.com/user-attachments/assets/f2b1a2f3-7868-41ff-adf2-d7ffe2c32e87)
+   　<br>
+   　<br>
+2. ログインしたら、次に API キーをクリックし、眼のマークをクリックすれば API キーを確認できます
+   ![にじボイスAPIのアクセスキーの場所](https://github.com/user-attachments/assets/906a15bb-ff77-473c-8f3c-345415fedce3)
+   　<br>
+   　<br>
+3. [NijiVoice_to_FVTT_LOCAL_API](https://github.com/AdmiralNyar/NijiVoice_to_FVTT_LOCAL_API)をダウンロードして、NijiVoice_to_Foundry.exe を実行します
+   　<br>
+   　<br>
+4. API キーを入力し、音声の保存先を設定し、NijiVoice_to_Foundry API サーバーを起動します
+   ![サーバー起動前の入力項目](https://github.com/user-attachments/assets/f46b9e0c-5c51-4c7f-84c7-85a6a6e92c16)
+   　<br>
+   　<br>
+5. NijiVoice to Foundry アプリケーションのアドレスを Bouyomichan Connector の MOD を有効化したワールドの「設定」⇒「Bouyomichan Connector」⇒「NijiVoice to Foundry アプリケーションの API サーバーアドレス」に張り付けて「変更内容を保存」してください
+
+- （デフォルトの http://localhost:2000 のまま使用するか、API サーバー起動時にポート番号を 2000 から例えば 1234 に変更していた場合は、http://localhost:1234 を入力してください）
+  ![URLを入力する](https://github.com/user-attachments/assets/3f00c453-3efe-4dc0-a39c-baaa5862d2e6)
+  　<br>
+  　<br>
+
+6. 「にじボイス API の残クレジット（＝文字数）数の通知」について、にじボイス API での音声生成後の残クレジットがここに入力した値以下となった場合、Foundry VTT のワールド側で通知が表示されます
+   ![残クレジット通知](https://github.com/user-attachments/assets/2558af07-e427-47e4-9418-a4fe92dfb94b)
+   ![通知](https://github.com/user-attachments/assets/725157e6-ef30-4d8c-b571-ffe3da28c75a)
+   　<br>
+   　<br>
+7. 「にじボイスのボイスアクター全員をこの部屋の ID 設定リストに追加する」について、ここに ✓ をつけてから「変更内容を保存」すると、「にじボイスアクター ID 設定」に自動的ににじボイスのボイスアクター全員が登録されます
+
+- 「変更内容を保存」後に、「設定」の「にじボイスのボイスアクター全員をこの部屋の ID 設定リストに追加する」の ✓ は自動的に外れます
+- API で最新のリストをにじボイス側から取り込んでいるので、必ず NijiVoice_to_Foundry API サーバーを起動した状態でこの機能を使用してください
+  ![にじボイスIDの追加](https://github.com/user-attachments/assets/42ff377f-8cd5-4f50-8fe5-f8def131bc6b)
+  ![にじボイスアクターリスト](https://github.com/user-attachments/assets/79e4ae66-4541-4993-bc72-f7ae299ae608)
+  　<br>
+  　<br>
+
+8. 「にじボイスアクター ID 設定」に登録されたデータは、通常どおり「発声者ごとの個別読み上げ設定」から指定できるようになります
+
+- 100 人以上追加されるため、使用しないボイスアクターは「にじボイスアクター ID 設定」から削除しても大丈夫です（再度、「にじボイスのボイスアクター全員をこの部屋の ID 設定リストに追加する」から削除した分のボイスアクターを追加できます）
+- Bouyomichan Connector module の「発声者ごとの個別読み上げ設定」は、にじボイスボイスアクターごとの ID で管理しているため、「にじボイスアクター ID 設定」でボイスアクター名を変更しても（サンタクロース ⇒ サンタ のように）読み上げ設定は消えません
+  ![ボイス設定](https://github.com/user-attachments/assets/39d211df-5aa0-450d-bd1c-902010b9932e)
+  　<br>
+  　<br>
+
+9. 「にじボイスの資料を作製する」について、ここに ✓ をつけてから「変更内容を保存」すると、「資料（Journal）」に「にじボイスアクターリスト」という資料が自動追加されます
+
+- 「変更内容を保存」後に、「設定」の「にじボイスの資料を作製する」の ✓ は自動的に外れます
+- API で最新のリストをにじボイス側から取り込んでいるので、必ず NijiVoice_to_Foundry API サーバーを起動した状態でこの機能を使用してください
+  ![にじボイス資料の作製](https://github.com/user-attachments/assets/0fdcc08e-b68c-42c4-b7fa-c263f0aaae2c)
+  ![にじボイス資料](https://github.com/user-attachments/assets/11be9930-db40-4950-ad79-27b0f452c8d4)
+  　<br>
+  　<br>
+  　<br>
+
 ### Theatre Inserts と併用する
 
 1. 立ち絵 MOD Theatre Inserts が有効となっているワールドであれば、ユーザーとアクターごとの声質の変更の設定画面に自動的に「ナレーター」が追加されます。Theater Inserts のナレーター用の読み上げ音声を設定しておくことができます
@@ -126,19 +184,19 @@
 
 ### VOICEROID や AI.VOICE など各合成音声を棒読みちゃんに追加する
 
-1. VOICEROID2[^1]、VOICEROID+ EX 版、VOICEROID+（東北ずん子、結月ゆかり[^2]、民安ともえ、鷹の爪 吉田くん）、VOICEROID（月読アイ、月読ショウタ[^3]）、ガイノイド Talk、音街ウナ[^4]Talk Ex、ギャラ子[^5]Talk、かんたん! AITalk[^6] 3、かんたん! AITalk 3 関西風の場合 - [ここ](https://wangdora.rdy.jp/?plugin/VTP) から Voiceroid Talk Plus のプラグインをインストールして棒読みちゃんで有効にしてください - この場合の声質は上書き実行して使います（例えば、Player1 が女性 1（棒読みちゃん）設定時に、Voiceroid Talk Plus の設定内のコマンド一覧にある鷹の爪 吉田くんボイス（コマンド 「v)」）を話したい場合は、「v) "読み上げたい文章"」をチャットに入力してください）
+1. VOICEROID2[^2]、VOICEROID+ EX 版、VOICEROID+（東北ずん子、結月ゆかり[^3]、民安ともえ、鷹の爪 吉田くん）、VOICEROID（月読アイ、月読ショウタ[^4]）、ガイノイド Talk、音街ウナ[^5]Talk Ex、ギャラ子[^6]Talk、かんたん! AITalk[^7] 3、かんたん! AITalk 3 関西風の場合 - [ここ](https://wangdora.rdy.jp/?plugin/VTP) から Voiceroid Talk Plus のプラグインをインストールして棒読みちゃんで有効にしてください - この場合の声質は上書き実行して使います（例えば、Player1 が女性 1（棒読みちゃん）設定時に、Voiceroid Talk Plus の設定内のコマンド一覧にある鷹の爪 吉田くんボイス（コマンド 「v)」）を話したい場合は、「v) "読み上げたい文章"」をチャットに入力してください）
    　<br>
    　<br>
-2. VOICEVOX[^7]、LMROID、SHAREVOX、COEIROINK[^8]onVOICEVOX の場合 - [ここページ](https://github.com/shigobu/SAPIForVOICEVOX) から「SAPI For VOICEVOX」をダウンロードして棒読みちゃんと VOICEVOX と併用してください（SAPI5 として追加されます） - LMROID、SHAREVOX、COEIROINKonVOICEVOX については、上記のページの [「VOICEVOX 派生アプリのキャラクター登録」](https://github.com/shigobu/SAPIForVOICEVOX#voicevox%E6%B4%BE%E7%94%9F%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E7%99%BB%E9%8C%B2%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3-200%E4%BB%A5%E9%99%8D) を参照ください
+2. VOICEVOX[^8]、LMROID、SHAREVOX、COEIROINK[^9]onVOICEVOX の場合 - [ここページ](https://github.com/shigobu/SAPIForVOICEVOX) から「SAPI For VOICEVOX」をダウンロードして棒読みちゃんと VOICEVOX と併用してください（SAPI5 として追加されます） - LMROID、SHAREVOX、COEIROINKonVOICEVOX については、上記のページの [「VOICEVOX 派生アプリのキャラクター登録」](https://github.com/shigobu/SAPIForVOICEVOX#voicevox%E6%B4%BE%E7%94%9F%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E7%99%BB%E9%8C%B2%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3-200%E4%BB%A5%E9%99%8D) を参照ください
    　<br>
    　<br>
-3. A.I.Voice[^9]の場合 - [ここのページ](https://github.com/gizagizamax/PotatoVoiceHub) から「PotatoVoiceHub」をダウンロードして棒読みちゃんと Voiceroid Talk Plus と連携してください
+3. A.I.Voice[^10]の場合 - [ここのページ](https://github.com/gizagizamax/PotatoVoiceHub) から「PotatoVoiceHub」をダウンロードして棒読みちゃんと Voiceroid Talk Plus と連携してください
    　<br>
    　<br>
-4. VOICEPEAK[^10]の場合（連携できません。棒読みちゃんと連携する方法をご存じの方がいましたら情報提供ください）
+4. VOICEPEAK[^11]の場合（連携できません。棒読みちゃんと連携する方法をご存じの方がいましたら情報提供ください）
    　<br>
    　<br>
-5. CeVIO[^11]\(CS6 のみ) - CeVIO CS7 と AI は 64bit アプリケーションなので、32bit アプリケーションの棒読みちゃんと連携できません - CS6 の場合、SAPI5 音源として（単独で？）連携できるようです
+5. CeVIO[^12]\(CS6 のみ) - CeVIO CS7 と AI は 64bit アプリケーションなので、32bit アプリケーションの棒読みちゃんと連携できません - CS6 の場合、SAPI5 音源として（単独で？）連携できるようです
    　<br>
    　<br>
    　<br>
@@ -151,6 +209,11 @@
   　<br>
 
 ## 主な更新内容
+
+### v0.2.6
+
+- にじボイスとの連携が可能な機能を追加しました
+- データ管理におけるバグについて修正しました
 
 ### v0.2.5
 
@@ -167,7 +230,7 @@
 ### v0.2.3
 
 - Foundry VTT Version 11 に対応しました（引き続き Version 9 ～ 10 でも使用できます）
-- 前回アップデート時の告知のとおり、CoeFont[^12]との連携のための機能を削除しました
+- 前回アップデート時の告知のとおり、CoeFont[^13]との連携のための機能を削除しました
 - Player 権限で棒読みちゃんを使用する場合でも、『読み上げ切り替えスイッチ』と『発声者ごとの個別読み上げ設定』が表示できるようにしました
 - 『発声者ごとの個別読み上げ設定』のアイコンを判別しやすいように歯車からスライドバーに変更しました
   <br>
@@ -200,15 +263,16 @@
 - 初回リリース（β 版）
   <br>
   <br>
-  [^1]:VOICEROID は株式会社 AHS および株式会社エーアイの登録商標です。
-  [^2]:結月ゆかりは株式会社バンピーファクトリーの登録商標です。
-  [^3]:月読ショウタ、月読アイは株式会社 AHS の登録商標です。
-  [^4]:音街ウナは株式会社エム・ティー・ケーの登録商標です。
-  [^5]:ギャラ子はヤマハ株式会社および株式会社スターダスト音楽出版の登録商標です。
-  [^6]:AITalk は株式会社エーアイの登録商標です。
-  [^7]:VOICEVOX は廣芝 和之氏の登録商標です。
-  [^8]:COEIROINK は服部 諭美氏の登録商標です。
-  [^9]:AIVoice は株式会社エーアイの登録商標です。
-  [^10]:VOICEPEAK は DreamTonics 株式会社の登録商標です。
-  [^11]:CeVIO は株式会社フロンティアワークスの登録商標です。
-  [^12]:AI 音声プラットフォーム「CoeFont」とは。[CoeFont](https://coefont.cloud)は AI 音声プラットフォームです。最新の AI 音声合成技術を活かし、「声」を手軽かつ表現力豊かな「フォント」のようにすることをコンセプトにした AI 音声技術です。従来では、50 万円・10 時間以上の収録を必要としていた音声合成を、このサービスでは 500 円・15 分の収録で、自然な発声のできる「CoeFont(AI 音声)」を作成できます。作成した CoeFont は、クラウド上で公開することができます。他のユーザーの CoeFont を利用した AI 音声の作成も可能です。作成した CoeFont が利用されるたびに、CoeFont の作成者に収益として還元されます。また API を利用して、アプリやウェブサイトに組み込むこともできます。（株式会社 CoeFont より）CoeFont は株式会社 CoeFont の登録商標です。
+  [^1]:にじボイスは株式会社 Algomatic が運営するサービスです。
+  [^2]:VOICEROID は株式会社 AHS および株式会社エーアイの登録商標です。
+  [^3]:結月ゆかりは株式会社バンピーファクトリーの登録商標です。
+  [^4]:月読ショウタ、月読アイは株式会社 AHS の登録商標です。
+  [^5]:音街ウナは株式会社エム・ティー・ケーの登録商標です。
+  [^6]:ギャラ子はヤマハ株式会社および株式会社スターダスト音楽出版の登録商標です。
+  [^7]:AITalk は株式会社エーアイの登録商標です。
+  [^8]:VOICEVOX は廣芝 和之氏の登録商標です。
+  [^9]:COEIROINK は服部 諭美氏の登録商標です。
+  [^10]:AIVoice は株式会社エーアイの登録商標です。
+  [^11]:VOICEPEAK は DreamTonics 株式会社の登録商標です。
+  [^12]:CeVIO は株式会社フロンティアワークスの登録商標です。
+  [^13]:AI 音声プラットフォーム「CoeFont」とは。[CoeFont](https://coefont.cloud)は AI 音声プラットフォームです。最新の AI 音声合成技術を活かし、「声」を手軽かつ表現力豊かな「フォント」のようにすることをコンセプトにした AI 音声技術です。従来では、50 万円・10 時間以上の収録を必要としていた音声合成を、このサービスでは 500 円・15 分の収録で、自然な発声のできる「CoeFont(AI 音声)」を作成できます。作成した CoeFont は、クラウド上で公開することができます。他のユーザーの CoeFont を利用した AI 音声の作成も可能です。作成した CoeFont が利用されるたびに、CoeFont の作成者に収益として還元されます。また API を利用して、アプリやウェブサイトに組み込むこともできます。（株式会社 CoeFont より）CoeFont は株式会社 CoeFont の登録商標です。
