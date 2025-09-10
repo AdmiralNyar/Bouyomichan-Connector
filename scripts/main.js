@@ -1154,6 +1154,9 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) => {
 
     if (skip) {
         Hooks.once("preCreateChatMessage", async (document, data, options, userId) => {
+            let whisper = await game.settings.get("BymChnConnector", "whisperSetting");
+            if (document.whisper.length != 0 && !whisper) return;
+
             let text = "";
             let polyglot = (!game.settings.get("BymChnConnector", "polyglotSetting") && game.modules.get('polyglot')?.active);
             let active = await game.settings.get("BymChnConnector", "active");
@@ -1340,3 +1343,4 @@ function htmlTokenizer(html, option = {}) {
     }
     return stack;
 }
+
