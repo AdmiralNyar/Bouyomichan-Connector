@@ -1147,14 +1147,13 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) => {
             skip = true;
             break;
     }
+    let whisper = await game.settings.get("BymChnConnector", "whisperSetting");
     if (!skip) {
-        let whisper = await game.settings.get("BymChnConnector", "whisperSetting");
         if (["whisper", "reply", "gm", "players"].includes(parse[0]) && whisper) skip = true;
     }
 
     if (skip) {
         Hooks.once("preCreateChatMessage", async (document, data, options, userId) => {
-            let whisper = await game.settings.get("BymChnConnector", "whisperSetting");
             if (document.whisper.length != 0 && !whisper) return;
 
             let text = "";
@@ -1343,4 +1342,5 @@ function htmlTokenizer(html, option = {}) {
     }
     return stack;
 }
+
 
