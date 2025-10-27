@@ -1,18 +1,435 @@
-<form class="flexcol" autocomplete="off">
-    <h2 style="justify-content: space-between; display: flex;"><span>{{localize 'TTSC.SAPI5Settingslabel'}}</span><a style="margin-right: 5px;" class="add-voice" title="{{localize 'TTSC.WindowVoiceAdd'}}"><i class="fas fa-plus"></i></a></h2>
-    {{#each sapi5List as |list|}}
-        <div class="form-group">
-            <div style="flex-basis: 100%; display: flex; justify-content: space-between;" data-id="{{@index}}" data-name="{{list.name}}" data-num="{{list.num}}"><input style="width:44%" type="text" id="" placeholder="{{localize 'TTSC.WindowVoiceSource'}}" name="{{@index}}{{../userid}}" pattern="^[^\/#&?%.\-\+\\_=@／＃＆？％．￥－＋＿＝＠]+" title="{{localize 'TTSC.WindowVoiceSourceTitle'}}" value="{{list.name}}"/><input style="width:44%" type="number" id="" placeholder="{{localize 'TTSC.WindowID'}}" name="{{@index}}{{../userid}}num" pattern="[1-9][0-9]{4,}" title="{{localize 'TTSC.WindowIDTitle'}}" value="{{list.num}}"/><div style="display:flex;justify-content: space-evenly;width:8%"><a class="voice-delete" title="{{localize 'TTSC.WindowDelete'}}"><i class="fas fa-trash"></i></a></div></div>
+<form id="sapi5-form" class="sapi5-settings-form" autocomplete="off">
+    <!-- Header Section -->
+    <div class="sapi5-header-section">
+        <div class="sapi5-header-title">
+            <i class="fas fa-microphone"></i>
+            <span>{{localize 'TTSC.SAPI5Settings'}}</span>
         </div>
-    {{/each}}
+        <div class="sapi5-header-actions">
+            <button type="button" class="sapi5-action-btn sapi5-add-btn add-voice" title="{{localize 'TTSC.WindowVoiceAdd'}}">
+                <i class="fas fa-plus"></i>
+                <span>{{localize 'TTSC.SAPI5AddRow'}}</span>
+            </button>
+            <button type="button" class="sapi5-action-btn sapi5-export-btn" title="{{localize 'TTSC.SAPI5Export'}}">
+                <i class="fas fa-file-export"></i>
+                <span>{{localize 'TTSC.SAPI5Export'}}</span>
+            </button>
+            <button type="button" class="sapi5-action-btn sapi5-import-btn" title="{{localize 'TTSC.SAPI5Import'}}">
+                <i class="fas fa-file-import"></i>
+                <span>{{localize 'TTSC.SAPI5Import'}}</span>
+            </button>
+        </div>
+    </div>
 
-    <!-- Settings Footer -->
-    <footer class="sheet-footer flexrow">
+    <!-- Hidden file input for import -->
+    <input type="file" id="sapi5-import-input" accept=".json" style="display: none;">
+
+    <!-- Voice Items Container -->
+    <div class="sapi5-voice-list" data-empty-text="{{localize 'TTSC.SAPI5EmptyMessage'}}">
+        {{#unless sapi5List.length}}
+        <div class="sapi5-empty-message">{{localize 'TTSC.SAPI5EmptyMessage'}}</div>
+        {{/unless}}
+        {{#each sapi5List as |list|}}
+            <div class="sapi5-voice-item" data-id="{{@index}}" data-name="{{list.name}}" data-num="{{list.num}}">
+                <div class="voice-name-field">
+                    <div class="sapi5-voice-name" title="{{list.name}}">
+                        <input type="text" class="sapi5-name-input"
+                               name="{{@index}}{{../userid}}"
+                               value="{{list.name}}"
+                               placeholder="{{localize 'TTSC.WindowVoiceSource'}}"
+                               pattern="^[^\/#&?%.\-\+\\_=@／＃＆？％．￥－＋＿＝＠]+"
+                               title="{{localize 'TTSC.WindowVoiceSourceTitle'}}">
+                    </div>
+                </div>
+                <div class="voice-id-field">
+                    <label class="id-label">ID:</label>
+                    <input type="number" class="sapi5-id-input"
+                           name="{{@index}}{{../userid}}num"
+                           value="{{list.num}}"
+                           placeholder="{{localize 'TTSC.WindowID'}}"
+                           pattern="[1-9][0-9]{4,}"
+                           title="{{localize 'TTSC.WindowIDTitle'}}"
+                           min="10001">
+                </div>
+                <div class="voice-actions">
+                    <button type="button" class="sapi5-delete-btn" title="{{localize 'TTSC.WindowDelete'}}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <!-- Footer Actions -->
+    <footer class="sapi5-footer-actions">
         <button type="submit" name="submit">
-            <i class="far fa-save"></i> {{localize 'SETTINGS.Save'}}
+            <i class="far fa-save"></i>
+            <span>{{localize 'SETTINGS.Save'}}</span>
         </button>
         <button type="button" name="reset">
-            <i class="fas fa-undo"></i> {{localize 'SETTINGS.Reset'}}
+            <i class="fas fa-undo"></i>
+            <span>{{localize 'SETTINGS.Reset'}}</span>
         </button>
     </footer>
+
 </form>
+
+<style>
+/* Universal Box Sizing for Cross-Browser Consistency */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Main Form Container - Scrollable layout */
+.sapi5-settings-form {
+    height: 320px;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Header Section - Two-row layout with title and action buttons */
+.sapi5-header-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 20px 0 20px;
+    flex-shrink: 0;
+}
+
+.sapi5-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.sapi5-header-title i {
+    color: #007acc;
+    font-size: 18px;
+}
+
+.sapi5-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Action buttons - Unified styling */
+.sapi5-action-btn {
+    padding: 6px 12px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    min-height: 32px;
+    flex: 1;
+    justify-content: center;
+}
+
+.sapi5-add-btn {
+    background: #28a745;
+}
+
+.sapi5-add-btn:hover {
+    background: #218838;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.sapi5-export-btn {
+    background: #007acc;
+}
+
+.sapi5-export-btn:hover {
+    background: #005a9e;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 122, 204, 0.3);
+}
+
+.sapi5-import-btn {
+    background: #6f42c1;
+}
+
+.sapi5-import-btn:hover {
+    background: #5a32a3;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
+}
+
+.sapi5-action-btn:active {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+}
+
+/* Voice List Container - Scrollable */
+.sapi5-voice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 0;
+    max-height: 240px;
+    padding: 12px 20px;
+    background: #ffffff;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom scrollbar styling to match VoiceSelectDialog */
+.sapi5-voice-list {
+    /* Firefox scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #c1c7cd #f1f3f4;
+}
+
+.sapi5-voice-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sapi5-voice-list::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.sapi5-voice-list::-webkit-scrollbar-thumb {
+    background: #c1c7cd;
+    border-radius: 4px;
+    border: 1px solid #b0b7bd;
+}
+
+.sapi5-voice-list::-webkit-scrollbar-thumb:hover {
+    background: #a8b0b8;
+    border-color: #9ba3ab;
+}
+
+.sapi5-voice-list::-webkit-scrollbar-thumb:active {
+    background: #95a0a8;
+    border-color: #8a959d;
+}
+
+/* Voice Item Styles - SAPI5 specific */
+.sapi5-settings-form .sapi5-voice-item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 0;
+    padding: 6px 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    position: relative;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.sapi5-settings-form .sapi5-voice-item:hover {
+    background: #ffffff;
+    border-color: #007acc;
+    box-shadow: 0 2px 4px rgba(0, 122, 204, 0.15);
+}
+
+/* Voice Name Field - Similar to voice-name but with input */
+.sapi5-settings-form .voice-name-field {
+    flex: 2;
+    min-width: 160px;
+    max-width: 220px;
+}
+
+.sapi5-settings-form .sapi5-voice-name {
+    width: 100%;
+}
+
+.sapi5-name-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+    line-height: 1.4;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    min-height: 36px;
+}
+
+.sapi5-name-input:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15);
+    background: #f8f9fa;
+}
+
+.sapi5-name-input:hover {
+    border-color: #007acc;
+}
+
+/* Voice ID Field */
+.sapi5-settings-form .voice-id-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 120px;
+    max-width: 160px;
+}
+
+.sapi5-settings-form .id-label {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 24px;
+}
+
+.sapi5-id-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+    line-height: 1.4;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    min-height: 36px;
+    min-width: 80px;
+}
+
+.sapi5-id-input:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15);
+    background: #f8f9fa;
+}
+
+.sapi5-id-input:hover {
+    border-color: #007acc;
+}
+
+/* Voice Actions */
+.sapi5-settings-form .voice-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.sapi5-delete-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.sapi5-delete-btn:hover {
+    background: #c82333;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.sapi5-delete-btn:active {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    background: #bd2130;
+}
+
+/* Footer Actions - Inside form */
+.sapi5-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid #dee2e6;
+    margin: 0;
+    flex-shrink: 0;
+    min-height: auto;
+    height: auto;
+    padding-top: 10px;
+}
+
+/* Empty state */
+.sapi5-empty-message {
+    display: block;
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .sapi5-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .sapi5-action-btn {
+        width: 100%;
+    }
+
+    .sapi5-voice-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .voice-name-field,
+    .voice-id-field {
+        flex: none;
+        min-width: auto;
+    }
+
+    .voice-id-field {
+        justify-content: space-between;
+    }
+
+    .voice-actions {
+        align-self: center;
+    }
+
+    .sapi5-footer-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
