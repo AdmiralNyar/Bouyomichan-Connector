@@ -127,7 +127,7 @@
     "TTSC.BulkVolumeSuccessMessage" : "{count} 件の発声者に音量設定を適用しました。",
 
   "TTSC.BracketReadingMode" : "括弧の読み上げ設定",
-  "TTSC.BracketReadingModeHint" : "鍵括弧（「」）による読み上げフィルタリング設定。台詞と地の文を区別して読み上げることができます。",
+  "TTSC.BracketReadingModeHint" : "鍵括弧（「」）による読み上げフィルタリング設定。台詞と地の文を区別して読み上げることができます。別モジュールによるナレーションや説明処理のほうが優先となります。",
   "TTSC.BracketMode0" : "0. 無効（デフォルト）",
   "TTSC.BracketMode1" : "1. 鍵括弧内のみ読み上げ（全員）",
   "TTSC.BracketMode2" : "2. アクターのみ鍵括弧内を読み上げ",
@@ -137,7 +137,7 @@
 
   "TTSC.MutedChatTabsMenu" : "読み上げないタブ",
   "TTSC.MutedChatTabsMenuLabel" : "読み上げないタブの設定",
-  "TTSC.MutedChatTabsMenuHint" : "Multiple Chat Tabsの特定のタブで発言された内容を読み上げないように設定します",
+  "TTSC.MutedChatTabsMenuHint" : "Multiple Chat Tabsの特定のタブで発言された内容を読み上げないように設定します。別モジュールによるナレーションや説明処理よりもこの設定を優先します。",
   "TTSC.MutedChatTabsWindowTitle" : "読み上げないタブの設定",
   "TTSC.MutedChatTabsDescription" : "読み上げたくないタブにチェックを入れてください：",
   "TTSC.MutedChatTabsModuleNotActive" : "Multiple Chat Tabsモジュールが有効になっていません。",
