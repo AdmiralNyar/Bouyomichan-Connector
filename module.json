@@ -1,14 +1,25 @@
 {
     "name": "BymChnConnector",
+    "id": "BymChnConnector",
     "title": "Bouyomichan Connector",
     "description": "Bouyomichan Connector",
     "author": "Admiral Nyar",
-    "version": "0.2.6",
+    "version": "0.3.0",
     "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "12",
+    "compatibleCoreVersion": "13",
     "scripts": [
-        "scripts/main.js",
-        "scripts/bouyomichan_client.js"
+        "scripts/utils.js",
+        "scripts/bouyomichan_client.js",
+        "scripts/voice-engine.js",
+        "scripts/ui-controls.js",
+        "scripts/sapi5-manager.js",
+        "scripts/nijivoice-manager.js",
+        "scripts/settings-core.js",
+        "scripts/voice-selector.js",
+        "scripts/chat-handler.js",
+        "scripts/module-integration.js",
+        "scripts/core-controller.js",
+        "scripts/main.js"
     ],
     "languages":[
         {
@@ -25,6 +36,6 @@
     "socket": true,
     "url" : "https://github.com/AdmiralNyar/Bouyomichan-Connector",
     "manifest" : "https://github.com/AdmiralNyar/Bouyomichan-Connector/raw/main/module.json",
-    "download" : "https://github.com/AdmiralNyar/Bouyomichan-Connector/archive/v0.2.5.zip",
+    "download" : "https://github.com/AdmiralNyar/Bouyomichan-Connector/archive/v0.3.0.zip",
     "license" : "LICENSE"
 }

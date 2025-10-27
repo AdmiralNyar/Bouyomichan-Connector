@@ -1,22 +1,914 @@
 <form id="select-voice">
-    <div>
-        <label>{{localize 'TTSC.WindowSelectSpeakerVoicetitle'}}</label>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-input-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="voice-search" class="search-input" placeholder="{{localize 'TTSC.SearchPlaceholder'}}" autocomplete="off">
+            <button type="button" id="search-clear" class="search-clear" title="{{localize 'TTSC.SearchClearTitle'}}">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </div>
-    <div style="display: flex; margin-bottom: 10px;">
-        <ol id="playersortable">
-            {{#each users as |user|}}
-                <li class="order" id="{{@index}}" data-id="{{@index}}" draggable="false" style="display: flex;height: 30px; margin-top: 5px;" data-playerid="{{user.id}}" data-name="{{user.name}}">
-                    <div style="width:200px;">{{user.name}}</div>
-                    <div style="width:160px">
-                        <select name="{{user.id}}" class="voice-select" style="width:150px">
-                            {{#each ../voiceList}}
-                                <option value="{{this.num}}&&{{this.type}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
-                            {{/each}}
-                        </select>
-                    </div>
-                    <div style="width:250px; display: flex;"><label style="width:80px">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label><input type="range" id="volume" name="{{user.id}}volume" value="{{user.volume}}" min="0" max="1" step="0.01"></div>
-                </li>
-            {{/each}}
-        </ol>
+
+    <!-- Module Users Accordion (Theatre, Narrator Tools) -->
+    {{#if hasModuleUsers}}
+    <details class="voice-accordion">
+        <summary class="voice-accordion-header">
+            <i class="fas fa-chevron-right accordion-icon"></i>
+            <i class="fas fa-puzzle-piece section-icon"></i>
+            {{localize 'TTSC.ModuleSpeakers'}} (<span class="visible-count">{{moduleUsers.length}}</span><span class="total-count" data-total="{{moduleUsers.length}}">{{moduleUsers.length}}</span>)
+        </summary>
+        <div class="voice-accordion-content">
+            <ol class="voice-list">
+                {{#each moduleUsers as |user|}}
+                    <li class="voice-item" data-id="{{@index}}" data-playerid="{{user.id}}" data-name="{{user.name}}">
+                        <input type="checkbox" class="voice-checkbox" data-voice-id="{{user.id}}" id="check-{{user.id}}">
+                        <div class="voice-name" title="{{user.name}}">{{user.name}}</div>
+                        <div class="voice-select-container">
+                            <select name="{{user.id}}" class="voice-select">
+                                {{#each ../voiceList}}
+                                    <option value="{{this.num}}&&{{this.type}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="voice-volume-container">
+                            <label class="volume-label">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label>
+                            <input type="range" name="{{user.id}}volume" value="{{user.volume}}" min="0" max="1" step="0.01" class="volume-slider">
+                        </div>
+                    </li>
+                {{/each}}
+            </ol>
+        </div>
+    </details>
+    {{/if}}
+
+    <!-- System Users Accordion (GM, Players) -->
+    <details class="voice-accordion">
+        <summary class="voice-accordion-header">
+            <i class="fas fa-chevron-right accordion-icon"></i>
+            <i class="fas fa-users section-icon"></i>
+            {{localize 'TTSC.UserSpeakers'}} (<span class="visible-count">{{systemUsers.length}}</span><span class="total-count" data-total="{{systemUsers.length}}">{{systemUsers.length}}</span>)
+        </summary>
+        <div class="voice-accordion-content {{#if (gt systemUsers.length 5)}}scrollable{{/if}}">
+            <ol class="voice-list">
+                {{#each systemUsers as |user|}}
+                    <li class="voice-item" data-id="{{@index}}" data-playerid="{{user.id}}" data-name="{{user.name}}">
+                        <input type="checkbox" class="voice-checkbox" data-voice-id="{{user.id}}" id="check-{{user.id}}">
+                        <div class="voice-name" title="{{user.name}}">{{user.name}}</div>
+                        <div class="voice-select-container">
+                            <select name="{{user.id}}" class="voice-select">
+                                {{#each ../voiceList}}
+                                    <option value="{{this.num}}&&{{this.type}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="voice-volume-container">
+                            <label class="volume-label">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label>
+                            <input type="range" name="{{user.id}}volume" value="{{user.volume}}" min="0" max="1" step="0.01" class="volume-slider">
+                        </div>
+                    </li>
+                {{/each}}
+            </ol>
+        </div>
+    </details>
+
+    <!-- Actor Users Accordion (NPCs, Characters) -->
+    {{#if actorSubdivisionEnabled}}
+        <!-- Subdivided Actor Types -->
+        {{#each actorGroups as |typeActors actorType|}}
+        <details class="voice-accordion">
+            <summary class="voice-accordion-header">
+                <i class="fas fa-chevron-right accordion-icon"></i>
+                <i class="fas fa-theater-masks section-icon"></i>
+                {{localize 'TTSC.ActorTypeSpeakers' type=actorType}} (<span class="visible-count">{{typeActors.length}}</span><span class="total-count" data-total="{{typeActors.length}}">{{typeActors.length}}</span>)
+            </summary>
+            <div class="voice-accordion-content {{#if (gt typeActors.length 10)}}scrollable{{/if}}">
+                <ol class="voice-list">
+                    {{#each typeActors as |user|}}
+                        <li class="voice-item" data-id="{{@index}}" data-playerid="{{user.id}}" data-name="{{user.name}}">
+                            <input type="checkbox" class="voice-checkbox" data-voice-id="{{user.id}}" id="check-{{user.id}}">
+                            <div class="voice-name" title="{{user.name}}">{{user.name}}</div>
+                            <div class="voice-select-container">
+                                <select name="{{user.id}}" class="voice-select">
+                                    {{#each ../../voiceList}}
+                                        <option value="{{this.num}}&&{{this.type}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                            <div class="voice-volume-container">
+                                <label class="volume-label">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label>
+                                <input type="range" name="{{user.id}}volume" value="{{user.volume}}" min="0" max="1" step="0.01" class="volume-slider">
+                            </div>
+                        </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </details>
+        {{/each}}
+    {{else}}
+        <!-- Single Actor Accordion (Default behavior) -->
+        <details class="voice-accordion">
+            <summary class="voice-accordion-header">
+                <i class="fas fa-chevron-right accordion-icon"></i>
+                <i class="fas fa-theater-masks section-icon"></i>
+                {{localize 'TTSC.ActorSpeakers'}} (<span class="visible-count">{{actorUsers.length}}</span><span class="total-count" data-total="{{actorUsers.length}}">{{actorUsers.length}}</span>)
+            </summary>
+            <div class="voice-accordion-content {{#if (gt actorUsers.length 10)}}scrollable{{/if}}">
+                <ol class="voice-list">
+                    {{#each actorUsers as |user|}}
+                        <li class="voice-item" data-id="{{@index}}" data-playerid="{{user.id}}" data-name="{{user.name}}">
+                            <input type="checkbox" class="voice-checkbox" data-voice-id="{{user.id}}" id="check-{{user.id}}">
+                            <div class="voice-name" title="{{user.name}}">{{user.name}}</div>
+                            <div class="voice-select-container">
+                                <select name="{{user.id}}" class="voice-select">
+                                    {{#each ../voiceList}}
+                                        <option value="{{this.num}}&&{{this.type}}" {{#uniqueif this.num "==" user.voice}}selected{{/uniqueif}}>{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                            <div class="voice-volume-container">
+                                <label class="volume-label">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label>
+                                <input type="range" name="{{user.id}}volume" value="{{user.volume}}" min="0" max="1" step="0.01" class="volume-slider">
+                            </div>
+                        </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </details>
+    {{/if}}
+
+    <!-- Bulk Settings Area -->
+    <div class="bulk-settings">
+        <div class="bulk-settings-header">
+            <div class="bulk-header-left">
+                <i class="fas fa-cogs"></i>
+                <span class="bulk-title">{{localize 'TTSC.BulkSettings'}}</span>
+                <span class="selected-count-display">({{localize 'TTSC.BulkSelected'}}: <span class="selected-count">0</span>{{localize 'TTSC.BulkItemsUnit'}})</span>
+            </div>
+            <button type="button" id="bulk-clear" class="bulk-clear bulk-clear-header">
+                <i class="fas fa-eraser"></i>
+                <span>{{localize 'TTSC.BulkClearSelection'}}</span>
+            </button>
+        </div>
+        <div class="bulk-controls">
+            <div class="bulk-settings-row">
+                <div class="bulk-voice-container">
+                    <label class="bulk-label">{{localize 'TTSC.BulkVoiceLabel'}}:</label>
+                    <select id="bulk-voice-select" class="bulk-voice-select">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <button type="button" id="bulk-apply-voice" class="bulk-apply bulk-apply-voice" disabled>
+                        <i class="fas fa-volume-up"></i>
+                        <span>{{localize 'TTSC.BulkApply'}}</span>
+                    </button>
+                </div>
+                <div class="bulk-volume-container">
+                    <label class="bulk-label">{{localize 'TTSC.WindowSelectSpeakerVoiceVolume'}}</label>
+                    <input type="range" id="bulk-volume-slider" class="bulk-volume-slider" min="0" max="1" step="0.01" value="-1">
+                    <button type="button" id="bulk-apply-volume" class="bulk-apply bulk-apply-volume" disabled>
+                        <i class="fas fa-volume-down"></i>
+                        <span>{{localize 'TTSC.BulkApply'}}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </form>
+
+<style>
+/* Universal Box Sizing for Cross-Browser Consistency */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+/* Search Bar Styles */
+.search-container {
+    margin-bottom: 10px;
+    padding: 0 40px 0 4px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    width: 580px;
+    max-width: -webkit-calc(100% - 80px);
+    max-width: calc(100% - 80px);
+}
+
+.search-input-wrapper:focus-within {
+    border-color: #007acc;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15);
+}
+
+/* Fallback for browsers without focus-within support */
+.search-input:focus {
+    border-color: #007acc;
+}
+
+.search-input:focus + .search-clear {
+    display: flex;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    color: #6c757d;
+    font-size: 16px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.search-input {
+    flex: 1;
+    padding: 14px 36px 14px 48px !important;
+    border: none !important;
+    outline: none !important;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+    background: transparent !important;
+    line-height: 1.4;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+.search-clear {
+    position: absolute;
+    right: 16px;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    color: #374151;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.search-clear:hover {
+    color: #111827;
+    -webkit-transform: scale(1.15);
+    transform: scale(1.15);
+}
+
+.search-clear:active {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    color: #000000;
+}
+
+.search-clear.visible {
+    display: flex;
+}
+
+/* Search Result Highlighting */
+.voice-item.search-hidden {
+    display: none !important;
+}
+
+.voice-name .search-highlight {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+/* Accordion Count Styles */
+.visible-count {
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.total-count {
+    color: #495057;
+    font-weight: 600;
+}
+
+.total-count::before {
+    content: "/";
+    margin: 0 3px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.total-count.hidden {
+    display: none;
+}
+
+/* Enhanced contrast for accordion headers */
+.voice-accordion[open] .visible-count,
+.voice-accordion[open] .total-count {
+    color: white;
+}
+
+.voice-accordion[open] .total-count::before {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Voice Accordion Styles */
+.voice-accordion {
+    margin-bottom: 12px;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.voice-accordion:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: #007acc;
+}
+
+.voice-accordion-header {
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    cursor: pointer;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-radius: 12px;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid transparent;
+    font-size: 16px;
+    letter-spacing: 0.3px;
+}
+
+.voice-accordion[open] .voice-accordion-header {
+    border-bottom: 1px solid #e1e8ed;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(135deg, #007acc 0%, #0056b3 100%);
+    color: white;
+}
+
+.voice-accordion[open] .accordion-icon,
+.voice-accordion[open] .section-icon {
+    color: white;
+}
+
+.accordion-icon {
+    margin-right: 12px;
+    color: #666;
+    -webkit-transition: -webkit-transform 0.2s ease;
+    transition: transform 0.2s ease;
+    font-size: 14px;
+}
+
+.voice-accordion[open] .accordion-icon {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.section-icon {
+    margin-right: 12px;
+    color: #555;
+    font-size: 16px;
+}
+
+.voice-accordion-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+}
+
+.voice-accordion[open] .voice-accordion-header:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: none;
+}
+
+.voice-accordion-content {
+    padding: 20px 24px 24px 24px;
+    background: #fafbfc;
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid rgba(0, 122, 204, 0.1);
+}
+
+.voice-accordion-content.scrollable {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.voice-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.voice-item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e1e8ed;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+/* Checkbox Styles */
+.voice-checkbox {
+    width: 16px;
+    height: 16px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: #007acc;
+    flex-shrink: 0;
+}
+
+.voice-item:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
+    border-color: #007acc;
+    box-shadow: 0 2px 8px rgba(0, 122, 204, 0.15);
+}
+
+.voice-item:hover .voice-name {
+    color: #007acc;
+}
+
+.voice-name {
+    width: 250px;
+    font-weight: 600;
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #2c3e50;
+    cursor: help;
+    transition: color 0.2s ease;
+    padding-right: 12px;
+    line-height: 1.4;
+}
+
+.voice-select-container {
+    width: 170px;
+    margin-right: 16px;
+}
+
+.voice-select {
+    width: 160px;
+    padding: 8px 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.4;
+    min-height: 36px;
+}
+
+.voice-select option {
+    padding: 8px 10px;
+    line-height: 1.5;
+    font-size: 14px;
+    min-height: 32px;
+    background: #fff;
+    color: #2c3e50;
+}
+
+.voice-select option:hover {
+    background: #f8f9fa;
+}
+
+.voice-select option:checked,
+.voice-select option:selected {
+    background: #007acc;
+    color: white;
+}
+
+.voice-select:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15);
+    background: #f8f9fa;
+}
+
+.voice-select:hover {
+    border-color: #007acc;
+}
+
+.voice-volume-container {
+    width: 220px;
+    display: flex;
+    align-items: center;
+}
+
+.volume-label {
+    width: 40px;
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    flex-shrink: 0;
+}
+
+.volume-slider {
+    flex: 1;
+    margin-left: 12px;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    height: 4px !important;
+    border-radius: 2px;
+    background: #e0e0e0 !important;
+    outline: none !important;
+    border: none !important;
+    width: 100% !important;
+}
+
+/* Firefox range track styling */
+.volume-slider::-moz-range-track {
+    height: 4px !important;
+    border-radius: 2px;
+    background: #e0e0e0 !important;
+    border: none !important;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 50% !important;
+    background: #007acc !important;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-top: -6px !important;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    background: #005999 !important;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 50% !important;
+    background: #007acc !important;
+    cursor: pointer;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    background: #005999 !important;
+}
+
+/* Scrollbar Styling */
+.voice-accordion-content.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.voice-accordion-content.scrollable::-webkit-scrollbar-track {
+    background: #f8f8f8;
+    border-radius: 3px;
+}
+
+.voice-accordion-content.scrollable::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.voice-accordion-content.scrollable::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* Additional modern styling */
+.voice-accordion-content.scrollable {
+    scrollbar-width: thin;
+    scrollbar-color: #c0c0c0 #f8f8f8;
+}
+
+/* Bulk Settings Styles */
+.bulk-settings {
+    margin-bottom: 10px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.bulk-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.bulk-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.bulk-settings-header i {
+    color: #007acc;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.bulk-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #2c3e50;
+    margin-right: 8px;
+}
+
+.selected-count-display {
+    color: #6c757d;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.selected-count {
+    color: #007acc;
+    font-weight: 700;
+}
+
+.bulk-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.bulk-settings-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+/* Fallback for browsers without gap support */
+.bulk-settings-row > * {
+    margin-bottom: 12px;
+}
+
+.bulk-settings-row > *:last-child {
+    margin-bottom: 0;
+}
+
+/* Modern browsers with gap support */
+@supports (gap: 12px) {
+    .bulk-settings-row {
+        gap: 12px;
+    }
+    .bulk-settings-row > * {
+        margin-bottom: 0;
+    }
+}
+
+.bulk-voice-container,
+.bulk-volume-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    gap: 12px;
+}
+
+/* No additional gap styles needed - using justify-content: space-between */
+
+/* Individual apply button styles */
+.bulk-apply-voice,
+.bulk-apply-volume {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 32px;
+    min-width: 80px;
+    max-width: 100px;
+    white-space: nowrap;
+    background: #007acc;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.bulk-apply-voice i,
+.bulk-apply-volume i {
+    color: white;
+    margin-right: 4px;
+    font-size: 11px;
+}
+
+.bulk-apply-voice:hover:not(:disabled),
+.bulk-apply-volume:hover:not(:disabled) {
+    background: #0056b3;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 122, 204, 0.3);
+}
+
+.bulk-apply-voice:disabled,
+.bulk-apply-volume:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
+.bulk-apply-voice:active:not(:disabled),
+.bulk-apply-volume:active:not(:disabled) {
+    background: #004085;
+    transform: translateY(0);
+}
+
+.bulk-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    white-space: nowrap;
+    min-width: 55px;
+    margin-right: 8px;
+}
+
+.bulk-voice-select {
+    flex: 1;
+    max-width: 220px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    min-height: 36px;
+}
+
+.bulk-voice-select:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.15);
+}
+
+.bulk-volume-slider {
+    flex: 1;
+    max-width: 180px;
+    height: 6px !important;
+    border-radius: 3px;
+    background: #e0e0e0 !important;
+    outline: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    border: none !important;
+}
+
+/* Firefox bulk slider track styling */
+.bulk-volume-slider::-moz-range-track {
+    height: 6px !important;
+    border-radius: 3px;
+    background: #e0e0e0 !important;
+    border: none !important;
+}
+
+.bulk-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    background: #007acc !important;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-top: -6px !important;
+}
+
+.bulk-volume-slider::-moz-range-thumb {
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    background: #007acc !important;
+    cursor: pointer;
+    border: none !important;
+    box-shadow: none !important;
+    transition: background 0.2s ease;
+}
+
+.bulk-volume-slider::-moz-range-thumb:hover {
+    background: #005999 !important;
+}
+
+.bulk-apply-container {
+    margin-left: auto;
+}
+
+.bulk-apply,
+.bulk-clear {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+/* Fallback for browsers without gap support */
+.bulk-apply > *,
+.bulk-clear > * {
+    margin-right: 8px;
+}
+
+.bulk-apply > *:last-child,
+.bulk-clear > *:last-child {
+    margin-right: 0;
+}
+
+/* Modern browsers with gap support */
+@supports (gap: 8px) {
+    .bulk-apply,
+    .bulk-clear {
+        gap: 8px;
+    }
+    .bulk-apply > *,
+    .bulk-clear > * {
+        margin-right: 0;
+    }
+}
+
+.bulk-apply {
+    background: #007acc;
+    color: white;
+}
+
+.bulk-apply:hover:not(:disabled) {
+    background: #0056b3;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+}
+
+.bulk-apply:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.bulk-clear {
+    background: #dc3545;
+    color: white;
+    margin-top: 0;
+    width: auto;
+    max-width: 200px;
+}
+
+.bulk-clear-header {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 32px;
+    max-width: 140px;
+}
+
+.bulk-clear-header i,
+.bulk-clear-header span {
+    color: white !important;
+}
+
+.bulk-clear i,
+.bulk-clear span {
+    color: white;
+}
+
+.bulk-clear:hover {
+    background: #c82333;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+}
+
+</style>

@@ -1,15 +1,431 @@
-<form class="flexcol" autocomplete="off">
-    <h2 style="justify-content: space-between; display: flex;"><span>{{localize 'TTSC.NijiVoiceIdSettings'}}</span><a style="margin-right: 5px;" class="add-voice" title="{{localize 'TTSC.WindowVoiceAdd'}}"><i class="fas fa-plus"></i></a></h2>
-    {{#each nijiList as |list|}}
-        <div class="form-group">
-            <div style="flex-basis: 100%; display: flex; justify-content: space-between;" data-id="{{@index}}" data-name="{{list.name}}" data-num="{{list.num}}"><input required style="width:44%" type="text" id="" placeholder="{{localize 'TTSC.WindowVoiceSource'}}" name="{{@index}}{{../userid}}" pattern="^[^\/#&?%.\-\+\\_=@／＃＆？％．￥－＋＿＝＠]+" title="{{localize 'TTSC.WindowVoiceSourceTitle'}}" value="{{list.name}}"/><input required style="width:44%" type="text" id="" placeholder="{{localize 'TTSC.WindowNijiVoiceID'}}" name="{{@index}}{{../userid}}num" pattern="^[A-Za-z0-9\-]+$" title="{{localize 'TTSC.WindowNijiVoiceIDTitle'}}" value="{{list.num}}"/><div style="display:flex;justify-content: space-evenly;width:8%"><a class="voice-delete" title="{{localize 'TTSC.WindowDelete'}}"><i class="fas fa-trash"></i></a></div></div>
+<form id="niji-form" class="niji-settings-form" autocomplete="off">
+    <!-- Header Section -->
+    <div class="niji-header-section">
+        <div class="niji-header-title">
+            <i class="fas fa-microphone-alt"></i>
+            <span>{{localize 'TTSC.NijiVoiceIdSettings'}}</span>
         </div>
-    {{/each}}
+        <div class="niji-header-actions">
+            <button type="button" class="niji-action-btn niji-add-btn add-voice" title="{{localize 'TTSC.WindowVoiceAdd'}}">
+                <i class="fas fa-plus"></i>
+                <span>{{localize 'TTSC.SAPI5AddRow'}}</span>
+            </button>
+            <button type="button" class="niji-action-btn niji-export-btn" title="{{localize 'TTSC.SAPI5Export'}}">
+                <i class="fas fa-file-export"></i>
+                <span>{{localize 'TTSC.SAPI5Export'}}</span>
+            </button>
+            <button type="button" class="niji-action-btn niji-import-btn" title="{{localize 'TTSC.SAPI5Import'}}">
+                <i class="fas fa-file-import"></i>
+                <span>{{localize 'TTSC.SAPI5Import'}}</span>
+            </button>
+        </div>
+    </div>
 
-    <!-- Settings Footer -->
-    <footer class="sheet-footer flexrow">
+    <!-- Hidden file input for import -->
+    <input type="file" id="niji-import-input" accept=".json" style="display: none;">
+
+    <!-- Voice Items Container -->
+    <div class="niji-voice-list" data-empty-text="{{localize 'TTSC.SAPI5EmptyMessage'}}">
+        {{#unless nijiList.length}}
+        <div class="niji-empty-message">{{localize 'TTSC.SAPI5EmptyMessage'}}</div>
+        {{/unless}}
+        {{#each nijiList as |list|}}
+            <div class="niji-voice-item" data-id="{{@index}}" data-name="{{list.name}}" data-num="{{list.num}}">
+                <div class="voice-name-field">
+                    <div class="niji-voice-name" title="{{list.name}}">
+                        <input type="text" class="niji-name-input"
+                               name="{{@index}}{{../userid}}"
+                               value="{{list.name}}"
+                               placeholder="{{localize 'TTSC.WindowVoiceSource'}}"
+                               pattern="^[^\/#&?%.\-\+\\_=@／＃＆？％．￥－＋＿＝＠]+"
+                               title="{{localize 'TTSC.WindowVoiceSourceTitle'}}">
+                    </div>
+                </div>
+                <div class="voice-id-field">
+                    <label class="id-label">ID:</label>
+                    <input type="text" class="niji-id-input"
+                           name="{{@index}}{{../userid}}num"
+                           value="{{list.num}}"
+                           placeholder="{{localize 'TTSC.WindowNijiVoiceID'}}"
+                           pattern="^[A-Za-z0-9\-]+$"
+                           title="{{localize 'TTSC.WindowNijiVoiceIDTitle'}}">
+                </div>
+                <div class="voice-actions">
+                    <button type="button" class="niji-delete-btn voice-delete" title="{{localize 'TTSC.WindowDelete'}}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+
+    <!-- Footer Actions -->
+    <footer class="niji-footer-actions">
         <button type="submit" name="submit">
-            <i class="far fa-save"></i> {{localize 'SETTINGS.Save'}}
+            <i class="far fa-save"></i>
+            <span>{{localize 'SETTINGS.Save'}}</span>
         </button>
     </footer>
+
 </form>
+
+<style>
+/* Universal Box Sizing for Cross-Browser Consistency */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Main Form Container - Scrollable layout */
+.niji-settings-form {
+    height: 320px;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Header Section - Two-row layout with title and action buttons */
+.niji-header-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 20px 0 20px;
+    flex-shrink: 0;
+}
+
+.niji-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.niji-header-title i {
+    color: #007acc;
+    font-size: 18px;
+}
+
+.niji-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Action buttons - Unified styling */
+.niji-action-btn {
+    padding: 6px 12px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    min-height: 32px;
+    flex: 1;
+    justify-content: center;
+}
+
+.niji-add-btn {
+    background: #28a745;
+}
+
+.niji-add-btn:hover {
+    background: #218838;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.niji-export-btn {
+    background: #007acc;
+}
+
+.niji-export-btn:hover {
+    background: #005a9e;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 122, 204, 0.3);
+}
+
+.niji-import-btn {
+    background: #6f42c1;
+}
+
+.niji-import-btn:hover {
+    background: #5a32a3;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
+}
+
+.niji-action-btn:active {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+}
+
+/* Voice List Container - Scrollable */
+.niji-voice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 0;
+    max-height: 240px;
+    padding: 12px 20px;
+    background: #ffffff;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom scrollbar styling to match VoiceSelectDialog */
+.niji-voice-list {
+    /* Firefox scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #c1c7cd #f1f3f4;
+}
+
+.niji-voice-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.niji-voice-list::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.niji-voice-list::-webkit-scrollbar-thumb {
+    background: #c1c7cd;
+    border-radius: 4px;
+    border: 1px solid #b0b7bd;
+}
+
+.niji-voice-list::-webkit-scrollbar-thumb:hover {
+    background: #a8b0b8;
+    border-color: #9ba3ab;
+}
+
+.niji-voice-list::-webkit-scrollbar-thumb:active {
+    background: #95a0a8;
+    border-color: #8a959d;
+}
+
+/* Voice Item Styles - NijiVoice specific */
+.niji-settings-form .niji-voice-item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 0;
+    padding: 6px 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    position: relative;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.niji-settings-form .niji-voice-item:hover {
+    background: #ffffff;
+    border-color: #007acc;
+    box-shadow: 0 2px 4px rgba(0, 122, 204, 0.15);
+}
+
+/* Voice Name Field - Similar to voice-name but with input */
+.niji-settings-form .voice-name-field {
+    flex: 2;
+    min-width: 160px;
+    max-width: 220px;
+}
+
+.niji-settings-form .niji-voice-name {
+    width: 100%;
+}
+
+.niji-name-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+    line-height: 1.4;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    min-height: 36px;
+}
+
+.niji-name-input:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15);
+    background: #f8f9fa;
+}
+
+.niji-name-input:hover {
+    border-color: #007acc;
+}
+
+/* Voice ID Field */
+.niji-settings-form .voice-id-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 120px;
+    max-width: 160px;
+}
+
+.niji-settings-form .id-label {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 24px;
+}
+
+.niji-id-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+    line-height: 1.4;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    min-height: 36px;
+    min-width: 80px;
+}
+
+.niji-id-input:focus {
+    outline: none;
+    border-color: #007acc;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.15);
+    background: #f8f9fa;
+}
+
+.niji-id-input:hover {
+    border-color: #007acc;
+}
+
+/* Voice Actions */
+.niji-settings-form .voice-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.niji-delete-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.niji-delete-btn:hover {
+    background: #c82333;
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.niji-delete-btn:active {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    background: #bd2130;
+}
+
+/* Footer Actions - Inside form */
+.niji-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid #dee2e6;
+    margin: 0;
+    flex-shrink: 0;
+    min-height: auto;
+    height: auto;
+    padding-top: 10px;
+}
+
+/* Empty state */
+.niji-empty-message {
+    display: block;
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .niji-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .niji-action-btn {
+        width: 100%;
+    }
+
+    .niji-voice-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .voice-name-field,
+    .voice-id-field {
+        flex: none;
+        min-width: auto;
+        max-width: none;
+    }
+
+    .voice-id-field {
+        justify-content: space-between;
+    }
+
+    .voice-actions {
+        align-self: center;
+    }
+
+    .niji-footer-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
