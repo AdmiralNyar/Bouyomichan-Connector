@@ -77,7 +77,7 @@ async function initializeSettings() {
         name: 'TTSC.BracketDebugMode',
         hint: 'TTSC.BracketDebugModeHint',
         scope: 'client',
-        config: true,
+        config: false,
         type: Boolean,
         default: false
     });
@@ -304,3 +304,4 @@ window.BymChnConnector.settings = window.BymChnConnector.settings || {};
 window.BymChnConnector.settings.initialize = initializeSettings;
 window.BymChnConnector.settings.initializeTranslationDependent = initializeTranslationDependentSettings;
 window.BymChnConnector.settings.createDefaultVoice = defvoice;
+
